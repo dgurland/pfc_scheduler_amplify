@@ -1,0 +1,20 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-amplify0cd1374ce40d4-staging-23925-authRole",
+      "UnauthRoleArn": "arn:aws:iam::533267410579:role/amplify-amplify0cd1374ce40d4-staging-23925-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::533267410579:role/amplify-amplify0cd1374ce40d4-staging-23925-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-amplify0cd1374ce40d4-staging-23925-deployment",
+      "UnauthRoleName": "amplify-amplify0cd1374ce40d4-staging-23925-unauthRole",
+      "StackName": "amplify-amplify0cd1374ce40d4-staging-23925",
+      "StackId": "arn:aws:cloudformation:us-east-2:533267410579:stack/amplify-amplify0cd1374ce40d4-staging-23925/bf521690-db62-11ee-b5a9-069a70cfbb89",
+      "AmplifyAppId": "d1awfbu28bubqd"
+    },
+    "categories": {
+      "auth": {
+        "pfcscheduleramplify571b3993": {}
+      }
+    }
+  }
+}
