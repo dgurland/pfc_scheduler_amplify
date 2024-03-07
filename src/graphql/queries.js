@@ -31,3 +31,44 @@ export const listFacilities = /* GraphQL */ `
     }
   }
 `;
+export const getActivity = /* GraphQL */ `
+  query GetActivity($id: ID!) {
+    getActivity(id: $id) {
+      id
+      name
+      usage
+      facilityId
+      facility {
+        id
+        name
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listActivities = /* GraphQL */ `
+  query ListActivities(
+    $filter: ModelActivityFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listActivities(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;

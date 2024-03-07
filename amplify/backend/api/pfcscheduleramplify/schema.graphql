@@ -7,3 +7,12 @@ type Facility @model @auth(rules: [ { allow: public } ] )
   id: ID!
   name: String!
 }
+
+type Activity @model @auth(rules: [ { allow: public } ] )
+{  
+  id: ID!
+  name: String!
+  usage: Int!
+  facilityId: ID
+  facility: Facility @hasOne(fields: ["facilityId"])
+}

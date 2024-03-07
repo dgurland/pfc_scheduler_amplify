@@ -34,3 +34,63 @@ export const onDeleteFacility = /* GraphQL */ `
     }
   }
 `;
+export const onCreateActivity = /* GraphQL */ `
+  subscription OnCreateActivity($filter: ModelSubscriptionActivityFilterInput) {
+    onCreateActivity(filter: $filter) {
+      id
+      name
+      usage
+      facilityId
+      facility {
+        id
+        name
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateActivity = /* GraphQL */ `
+  subscription OnUpdateActivity($filter: ModelSubscriptionActivityFilterInput) {
+    onUpdateActivity(filter: $filter) {
+      id
+      name
+      usage
+      facilityId
+      facility {
+        id
+        name
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteActivity = /* GraphQL */ `
+  subscription OnDeleteActivity($filter: ModelSubscriptionActivityFilterInput) {
+    onDeleteActivity(filter: $filter) {
+      id
+      name
+      usage
+      facilityId
+      facility {
+        id
+        name
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;

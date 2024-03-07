@@ -43,3 +43,72 @@ export const deleteFacility = /* GraphQL */ `
     }
   }
 `;
+export const createActivity = /* GraphQL */ `
+  mutation CreateActivity(
+    $input: CreateActivityInput!
+    $condition: ModelActivityConditionInput
+  ) {
+    createActivity(input: $input, condition: $condition) {
+      id
+      name
+      usage
+      facilityId
+      facility {
+        id
+        name
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateActivity = /* GraphQL */ `
+  mutation UpdateActivity(
+    $input: UpdateActivityInput!
+    $condition: ModelActivityConditionInput
+  ) {
+    updateActivity(input: $input, condition: $condition) {
+      id
+      name
+      usage
+      facilityId
+      facility {
+        id
+        name
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteActivity = /* GraphQL */ `
+  mutation DeleteActivity(
+    $input: DeleteActivityInput!
+    $condition: ModelActivityConditionInput
+  ) {
+    deleteActivity(input: $input, condition: $condition) {
+      id
+      name
+      usage
+      facilityId
+      facility {
+        id
+        name
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
