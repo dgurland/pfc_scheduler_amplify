@@ -16,3 +16,13 @@ type Activity @model @auth(rules: [ { allow: public } ] )
   facilityId: ID
   facility: Facility @hasOne(fields: ["facilityId"])
 }
+
+type ScheduleEntry @model @auth(rules: [ { allow: public } ] )
+{
+  id: ID!
+  date: String
+  activityIds: [ID]
+  activities: [Activity] @hasMany(fields: ["activityIds"])
+  division: Int!
+  period: Int!
+}

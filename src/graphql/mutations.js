@@ -112,3 +112,66 @@ export const deleteActivity = /* GraphQL */ `
     }
   }
 `;
+export const createScheduleEntry = /* GraphQL */ `
+  mutation CreateScheduleEntry(
+    $input: CreateScheduleEntryInput!
+    $condition: ModelScheduleEntryConditionInput
+  ) {
+    createScheduleEntry(input: $input, condition: $condition) {
+      id
+      date
+      activityIds
+      activities {
+        nextToken
+        __typename
+      }
+      division
+      period
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateScheduleEntry = /* GraphQL */ `
+  mutation UpdateScheduleEntry(
+    $input: UpdateScheduleEntryInput!
+    $condition: ModelScheduleEntryConditionInput
+  ) {
+    updateScheduleEntry(input: $input, condition: $condition) {
+      id
+      date
+      activityIds
+      activities {
+        nextToken
+        __typename
+      }
+      division
+      period
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteScheduleEntry = /* GraphQL */ `
+  mutation DeleteScheduleEntry(
+    $input: DeleteScheduleEntryInput!
+    $condition: ModelScheduleEntryConditionInput
+  ) {
+    deleteScheduleEntry(input: $input, condition: $condition) {
+      id
+      date
+      activityIds
+      activities {
+        nextToken
+        __typename
+      }
+      division
+      period
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;

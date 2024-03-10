@@ -94,3 +94,63 @@ export const onDeleteActivity = /* GraphQL */ `
     }
   }
 `;
+export const onCreateScheduleEntry = /* GraphQL */ `
+  subscription OnCreateScheduleEntry(
+    $filter: ModelSubscriptionScheduleEntryFilterInput
+  ) {
+    onCreateScheduleEntry(filter: $filter) {
+      id
+      date
+      activityIds
+      activities {
+        nextToken
+        __typename
+      }
+      division
+      period
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateScheduleEntry = /* GraphQL */ `
+  subscription OnUpdateScheduleEntry(
+    $filter: ModelSubscriptionScheduleEntryFilterInput
+  ) {
+    onUpdateScheduleEntry(filter: $filter) {
+      id
+      date
+      activityIds
+      activities {
+        nextToken
+        __typename
+      }
+      division
+      period
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteScheduleEntry = /* GraphQL */ `
+  subscription OnDeleteScheduleEntry(
+    $filter: ModelSubscriptionScheduleEntryFilterInput
+  ) {
+    onDeleteScheduleEntry(filter: $filter) {
+      id
+      date
+      activityIds
+      activities {
+        nextToken
+        __typename
+      }
+      division
+      period
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;

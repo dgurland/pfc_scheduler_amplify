@@ -72,3 +72,43 @@ export const listActivities = /* GraphQL */ `
     }
   }
 `;
+export const getScheduleEntry = /* GraphQL */ `
+  query GetScheduleEntry($id: ID!) {
+    getScheduleEntry(id: $id) {
+      id
+      date
+      activityIds
+      activities {
+        nextToken
+        __typename
+      }
+      division
+      period
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listScheduleEntries = /* GraphQL */ `
+  query ListScheduleEntries(
+    $filter: ModelScheduleEntryFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listScheduleEntries(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        date
+        activityIds
+        division
+        period
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
