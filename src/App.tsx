@@ -12,7 +12,7 @@ import {
 import ActivityFacility from "./templates/ActivityFacility";
 import ScheduleEditor from "./templates/ScheduleEditor";
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
-import { AppBar, Box, Button, Link, Toolbar } from "@mui/material";
+import { AppBar, Box, Button, Toolbar } from "@mui/material";
 
 
 const App = ({ signOut }) => {
@@ -22,7 +22,7 @@ const App = ({ signOut }) => {
   async function handleFetchUserAttributes() {
     try {
       const ua = await fetchUserAttributes();
-      console.log(ua['custom:authLevel']);
+      console.log(ua);
       setUserAttributes(ua)
     } catch (error) {
       console.log(error);
@@ -38,18 +38,22 @@ const App = ({ signOut }) => {
       path: "/activities-and-facilities",
       element: <ActivityFacility />,
       name: "Activities and Facilities",
-      enabled: (userAttributes['custom:authLevel'] ?? '') == 'admin'
+      enabled: (userAttributes['custom:authLevel'] ?? '') == 'admin',
+      order: 2
     },
     {
       path: "/schedule-edit",
       element: <ScheduleEditor />,
       name: "Edit Schedules",
-      enabled: (userAttributes['custom:authLevel'] ?? '')
+      enabled: (userAttributes['custom:authLevel'] ?? ''),
+      order: 1
     },
     {
       path: "/",
+      name: "Home",
       element: <div>Hello World</div>,
-      enabled: true
+      enabled: true,
+      order: 0
     },
   ]
   const router = createBrowserRouter(routes);
@@ -59,8 +63,8 @@ const App = ({ signOut }) => {
       <div className="bg-blue text-white w-full">
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="static">
-            <Toolbar>
-              {routes.map((route) => {
+            <Toolbar className="flex gap-4">
+              {routes.sort((a, b) => a.order - b.order).map((route) => {
                 if (route.enabled) {
                   return (
                     <a href={route.path} className="text-white hover:underline">
@@ -69,7 +73,10 @@ const App = ({ signOut }) => {
                   )
                 }
               })}
-              <Button className="ml-auto" onClick={signOut}>Sign Out</Button>
+              <div className="ml-auto flex gap-4 items-center">
+                <span className="text-white">Welcome <span className="font-bold">{userAttributes['name'] ?? userAttributes['username']}</span></span>
+                <Button className="text-white" onClick={signOut} color='inherit' variant='outlined'>Sign Out</Button>
+              </div>
             </Toolbar>
           </AppBar>
         </Box>
