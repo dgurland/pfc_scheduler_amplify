@@ -66,7 +66,6 @@ const ActivityFacility = () => {
       usage: form.get("usage"),
       facilityId: form.get("facility")
     };
-    console.log(data)
     await API.graphql({
       query: createActivityMutation,
       variables: { input: data },

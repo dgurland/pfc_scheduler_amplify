@@ -15,12 +15,11 @@ import {
 import { listActivities, listFacilities, listScheduleEntries } from "../graphql/queries";
 import { listActivitiesWithFacilityData } from "../graphql/custom-queries";
 import {
-  createFacility as createFacilityMutation,
-  deleteFacility as deleteFacilityMutation,
-  createActivity as createActivityMutation,
-  deleteActivity as deleteActivityMutation,
+  createScheduleEntry,
+  updateScheduleEntry
 } from "../graphql/mutations";
 import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry } from "../types";
+import ActivitySelect from "../common/components/ActivitySelect";
 
 const ScheduleEditor = () => {
   const [facilities, setFacilities] = useState([]);
@@ -28,7 +27,7 @@ const ScheduleEditor = () => {
   const [scheduleEntriesByPeriod, setScheduleEntries] = useState([]);
   const numPeriods = 6;
 
-  const API = generateClient();
+  const API = generateClient({ authMode: 'apiKey'});
 
   useEffect(() => {
     fetchFacilities();
@@ -51,7 +50,7 @@ const ScheduleEditor = () => {
   async function fetchScheduleEntries() {
     const apiData = await API.graphql({ query: listScheduleEntries });
     const scheduleFromAPI = apiData.data.listScheduleEntries.items;
-    const sortedSchedule = scheduleFromAPI.reduce((accumulator, currentValue) => {
+    let sortedSchedule = scheduleFromAPI.reduce((accumulator, currentValue) => {
       const period = currentValue.period;
       if (accumulator[period]) {
         accumulator[period].push(currentValue)
@@ -60,8 +59,8 @@ const ScheduleEditor = () => {
       }
       return accumulator;
     }, [])
-    sortedSchedule.map((list) => {
-      return list.sort((a, b) => a.division < b.divison)
+    sortedSchedule = sortedSchedule.map((list: ScheduleEntry[]) => {
+      return list.sort((a, b) => a.division > b.division ? 1 : -1)
     })
     setScheduleEntries(sortedSchedule);
   }
@@ -106,11 +105,46 @@ const ScheduleEditor = () => {
     return row;
   }
 
+  async function createUpdateScheduleEntry(entry: ScheduleEntry) {
+    if (entry.id == "") {
+      //create
+      const data = {
+        date: entry.date,
+        period: entry.period,
+        division: entry.division,
+        activityIds: entry.activityIds,
+      }
+      console.log("attempting to update based on entry:")
+      console.log(data)
+      await API.graphql({
+        query: createScheduleEntry,
+        variables: { input: data },
+      });
+    } else {
+      //update
+      const data = {
+        date: entry.date,
+        period: entry.period,
+        division: entry.division,
+        activityIds: entry.activityIds,
+        id: entry.id
+      }
+      console.log("attempting to update based on entry:")
+      console.log(data)
+      await API.graphql({
+        query: updateScheduleEntry,
+        variables: { input: data },
+      });
+    }
+    fetchScheduleEntries();
+  }
+
   return (
     <View>
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell />
             <TableCell>
               Jr Girls
             </TableCell>
@@ -138,11 +172,18 @@ const ScheduleEditor = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {tableRows().map((row: ScheduleEntry[]) => {
+          {tableRows().map((row: ScheduleEntry[], i) => {
             return (
-              <TableRow>
-                {row.map((entry: ScheduleEntry) => {
-                  return <TableCell>{entry.period} {entry.division}</TableCell>
+              <TableRow key={i}>
+                <TableCell key={`period-${i}`}>
+                  Period {i + 1}
+                </TableCell>
+                {row.map((entry: ScheduleEntry, j) => {
+                  return (
+                    <TableCell key={`${i}-${j}`}>
+                      <ActivitySelect activities={activities} scheduleEntry={entry} onChange={createUpdateScheduleEntry}/>
+                    </TableCell>
+                  )
                 })}
               </TableRow>
             )

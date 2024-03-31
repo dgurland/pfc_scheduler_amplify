@@ -30,3 +30,10 @@ export type ScheduleEntry = {
     division: number;
     period: number;
 }
+
+export type ScheduleEntryCreationSubmission = {
+    date: string;
+    activityIds: string[];
+    division: number;
+    period: number;
+}
