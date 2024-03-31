@@ -26,11 +26,14 @@ import {
 } from "../graphql/mutations";
 import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry } from "../types";
 import ActivitySelect from "../common/components/ActivitySelect";
+import dayjs, { Dayjs } from "dayjs";
 
 const ScheduleEditor = () => {
   const [facilities, setFacilities] = useState([]);
   const [activities, setActivities] = useState([]);
   const [scheduleEntriesByPeriod, setScheduleEntries] = useState<ScheduleEntry[][]>([]);
+  const [date, setDate] = useState<Dayjs | null>(null);
+  const [datePickerDisabled, setDatePickerDisabled] = useState(false);
   const numPeriods = 6;
 
   const API = generateClient({ authMode: 'apiKey' });
@@ -40,6 +43,10 @@ const ScheduleEditor = () => {
     fetchActivities();
     fetchScheduleEntries();
   }, []);
+
+  useEffect(() => {
+    fetchScheduleEntries();
+  }, [date])
 
   async function fetchFacilities() {
     const apiData = await API.graphql({ query: listFacilities });
@@ -54,7 +61,7 @@ const ScheduleEditor = () => {
   }
 
   async function fetchScheduleEntries() {
-    const apiData = await API.graphql({ query: listScheduleEntries });
+    const apiData = await API.graphql({ query: listScheduleEntries, variables: { filter: { date: { eq: date?.format('MM/DD/YYYY') ?? '' } } } });
     const scheduleFromAPI = apiData.data.listScheduleEntries.items;
     let sortedSchedule = scheduleFromAPI.reduce((accumulator, currentValue) => {
       const period = currentValue.period;
@@ -74,9 +81,11 @@ const ScheduleEditor = () => {
   async function saveDateToScheduleEntries(event) {
     event.preventDefault();
     const form = new FormData(event.target);
+    const newDate = form.get("date");
+    setDate(dayjs(newDate));
     await Promise.all(scheduleEntriesByPeriod.map((period) => {
       return period?.map((entry: ScheduleEntry) => {
-        return createUpdateScheduleEntry({...entry, date: form.get("date") ?? ''})
+        return createUpdateScheduleEntry({ ...entry, date: newDate ?? '' })
       })
     }))
     fetchScheduleEntries();
@@ -139,8 +148,6 @@ const ScheduleEditor = () => {
         division: entry.division,
         activityIds: entry.activityIds,
       }
-      console.log("attempting to update based on entry:")
-      console.log(data)
       await API.graphql({
         query: createScheduleEntry,
         variables: { input: data },
@@ -154,8 +161,6 @@ const ScheduleEditor = () => {
         activityIds: entry.activityIds,
         id: entry.id
       }
-      console.log("attempting to update based on entry:")
-      console.log(data)
       await API.graphql({
         query: updateScheduleEntry,
         variables: { input: data },
@@ -166,6 +171,20 @@ const ScheduleEditor = () => {
 
   return (
     <View>
+      {date ? (
+        <Heading level={3}>Editing Schedule for date: {date.format('MM/DD/YYYY')}</Heading>
+      ) : (
+        <View margin="3rem 0">
+          <Heading level={3}>Choose a date to edit an existing schedule:</Heading>
+          <Flex direction="row" justifyContent="center">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker label="Date" onChange={(value) => {
+                setDatePickerDisabled(true);
+                setDate(value);
+              }} />
+            </LocalizationProvider>
+          </Flex>
+        </View>)}
       <Table>
         <TableHead>
           <TableRow>
@@ -219,7 +238,7 @@ const ScheduleEditor = () => {
         <Heading level={3}>Save Schedule</Heading>
         <Flex direction="row" justifyContent="center">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker label="Date" name="date" />
+            <DatePicker label="Date" name="date" value={date} disabled={date ? true : false} />
           </LocalizationProvider>
           <Button type="submit" variation="primary">
             Save
