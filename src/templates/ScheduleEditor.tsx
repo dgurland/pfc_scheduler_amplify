@@ -66,14 +66,21 @@ const ScheduleEditor = () => {
   }
 
   function facilityUsageForPeriod(period) {
-    const entries: ScheduleEntry[] = scheduleEntriesByPeriod[period];
+    const entries: ScheduleEntry[] = scheduleEntriesByPeriod[period] ?? [];
     const allActivitiesInUse = []
-    entries.forEach((entry: ScheduleEntry) => allActivitiesInUse.concat(entry.activities));
+    entries.forEach((entry: ScheduleEntry) => {
+      entry.activityIds.forEach((activityId: string) => {
+        const activityObj = activities.find((activity: Activity) => activity.id === activityId)
+        if (activityObj && !allActivitiesInUse.includes(activityObj)) {
+          allActivitiesInUse.push(activityObj);
+        }
+      })
+    });
     const facilitiesWithUsages = allActivitiesInUse.reduce((accumulator, currentValue: Activity) => {
-      if (accumulator[currentValue.facility.id]) {
-        accumulator[currentValue.facility.id] += currentValue.usage;
+      if (accumulator[currentValue.facility.name]) {
+        accumulator[currentValue.facility.name] += currentValue.usage;
       } else {
-        accumulator[currentValue.facility.id] = currentValue.usage;
+        accumulator[currentValue.facility.name] = currentValue.usage;
       }
       return accumulator;
     }, {})
@@ -181,7 +188,7 @@ const ScheduleEditor = () => {
                 {row.map((entry: ScheduleEntry, j) => {
                   return (
                     <TableCell key={`${i}-${j}`}>
-                      <ActivitySelect activities={activities} scheduleEntry={entry} onChange={createUpdateScheduleEntry}/>
+                      <ActivitySelect activities={activities} scheduleEntry={entry} onChange={createUpdateScheduleEntry} facilityUsage={facilityUsageForPeriod(i)} />
                     </TableCell>
                   )
                 })}

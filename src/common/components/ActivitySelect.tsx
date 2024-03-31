@@ -4,12 +4,13 @@ import React, { useEffect, useState } from "react";
 type ActivityProps = {
 	scheduleEntry: ScheduleEntry,
 	activities: Activity[],
-	onChange: any
+	onChange: any,
+	facilityUsage: any
 }
 
 
 const ActivitySelect = (props: ActivityProps) => {
-	const { scheduleEntry, activities, onChange } = props;
+	const { scheduleEntry, activities, onChange, facilityUsage } = props;
 	const [selectedActivities, setSelectedActivities] = useState<Activity[]>([])
 	useEffect(() => {
 		setSelectedActivities(activities.filter((activity) => scheduleEntry.activityIds.includes(activity.id)));
@@ -28,7 +29,7 @@ const ActivitySelect = (props: ActivityProps) => {
 			}}>
 			{activities.map((activity: Activity) => {
 				return (
-					<MenuItem value={activity.id} key={activity.id}>{activity.name}</MenuItem>
+					<MenuItem value={activity.id} key={activity.id} disabled={facilityUsage[activity.facility.name] + activity.usage > 100}>{activity.name}</MenuItem>
 				)
 			})}
 		</Select>
