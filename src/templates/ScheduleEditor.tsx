@@ -34,6 +34,7 @@ const ScheduleEditor = () => {
   const [scheduleEntriesByPeriod, setScheduleEntries] = useState<ScheduleEntry[][]>([]);
   const [date, setDate] = useState<Dayjs | null>(null);
   const [datePickerDisabled, setDatePickerDisabled] = useState(false);
+  const [isCreating, setIsCreating] = useState(true);
   const numPeriods = 6;
 
   const API = generateClient({ authMode: 'apiKey' });
@@ -46,6 +47,13 @@ const ScheduleEditor = () => {
 
   useEffect(() => {
     fetchScheduleEntries();
+
+    //adds each existing entry to the "working" (dateless) table
+    scheduleEntriesByPeriod?.forEach((period) => {
+      period?.forEach((entry) => {
+        createUpdateScheduleEntry(entry);
+      })
+    })
   }, [date])
 
   async function fetchFacilities() {
@@ -58,6 +66,12 @@ const ScheduleEditor = () => {
     const apiData = await API.graphql({ query: listActivitiesWithFacilityData });
     const activitiesFromAPI = apiData.data.listActivities.items;
     setActivities(activitiesFromAPI);
+  }
+
+  async function scheduleEntriesExistForDate(date: string) {
+    const apiData = await API.graphql({ query: listScheduleEntries, variables: { filter: { date: { eq: date ?? '' } } } });
+    const scheduleFromAPI = apiData.data.listScheduleEntries.items;
+    return scheduleFromAPI?.length > 0;
   }
 
   async function fetchScheduleEntries() {
@@ -81,14 +95,26 @@ const ScheduleEditor = () => {
   async function saveDateToScheduleEntries(event) {
     event.preventDefault();
     const form = new FormData(event.target);
-    const newDate = form.get("date");
-    setDate(dayjs(newDate));
+    const newDate = form.get("date") as string;
+    if (isCreating) {
+      const exists = await scheduleEntriesExistForDate(newDate);
+      if (exists) {
+        const save = window.confirm("There is already data for this day stored in the system. Saving this schedule could potentially overwrite that. Are you sure you want to continue?");
+        if (!save) {
+          return;
+        }
+      }
+    }
+    setDate(dayjs(newDate, "MM/DD/YYYY"));
     await Promise.all(scheduleEntriesByPeriod.map((period) => {
       return period?.map((entry: ScheduleEntry) => {
-        return createUpdateScheduleEntry({ ...entry, date: newDate ?? '' })
+        if (entry) {
+          return createUpdateScheduleEntry(entry, newDate)
+        }
       })
     }))
     fetchScheduleEntries();
+    setDatePickerDisabled(false);
     event.target.reset();
   }
 
@@ -139,11 +165,11 @@ const ScheduleEditor = () => {
     return row;
   }
 
-  async function createUpdateScheduleEntry(entry: ScheduleEntry) {
-    if (entry.id == "") {
+  async function createUpdateScheduleEntry(entry: ScheduleEntry, date = '') {
+    if (entry.id == "" || entry.date || (date && entry.date !== date)) {
       //create
       const data = {
-        date: entry.date,
+        date: date,
         period: entry.period,
         division: entry.division,
         activityIds: entry.activityIds,
@@ -155,7 +181,7 @@ const ScheduleEditor = () => {
     } else {
       //update
       const data = {
-        date: entry.date,
+        date: date,
         period: entry.period,
         division: entry.division,
         activityIds: entry.activityIds,
@@ -181,6 +207,7 @@ const ScheduleEditor = () => {
               <DatePicker label="Date" onChange={(value) => {
                 setDatePickerDisabled(true);
                 setDate(value);
+                setIsCreating(false);
               }} />
             </LocalizationProvider>
           </Flex>
@@ -238,7 +265,7 @@ const ScheduleEditor = () => {
         <Heading level={3}>Save Schedule</Heading>
         <Flex direction="row" justifyContent="center">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker label="Date" name="date" value={date} disabled={date ? true : false} />
+            <DatePicker label="Date" name="date" value={date} disabled={datePickerDisabled} />
           </LocalizationProvider>
           <Button type="submit" variation="primary">
             Save
