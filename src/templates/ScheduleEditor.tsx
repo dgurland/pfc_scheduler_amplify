@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { DatePicker } from "@mui/x-date-pickers";
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from 'aws-amplify/api';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import {
   Table,
   TableRow,
@@ -10,7 +13,10 @@ import {
   View,
   withAuthenticator,
   SelectField,
-  SliderField
+  SliderField,
+  Heading,
+  Flex,
+  Button
 } from "@aws-amplify/ui-react";
 import { listActivities, listFacilities, listScheduleEntries } from "../graphql/queries";
 import { listActivitiesWithFacilityData } from "../graphql/custom-queries";
@@ -24,10 +30,10 @@ import ActivitySelect from "../common/components/ActivitySelect";
 const ScheduleEditor = () => {
   const [facilities, setFacilities] = useState([]);
   const [activities, setActivities] = useState([]);
-  const [scheduleEntriesByPeriod, setScheduleEntries] = useState([]);
+  const [scheduleEntriesByPeriod, setScheduleEntries] = useState<ScheduleEntry[][]>([]);
   const numPeriods = 6;
 
-  const API = generateClient({ authMode: 'apiKey'});
+  const API = generateClient({ authMode: 'apiKey' });
 
   useEffect(() => {
     fetchFacilities();
@@ -63,6 +69,18 @@ const ScheduleEditor = () => {
       return list.sort((a, b) => a.division > b.division ? 1 : -1)
     })
     setScheduleEntries(sortedSchedule);
+  }
+
+  async function saveDateToScheduleEntries(event) {
+    event.preventDefault();
+    const form = new FormData(event.target);
+    await Promise.all(scheduleEntriesByPeriod.map((period) => {
+      return period?.map((entry: ScheduleEntry) => {
+        return createUpdateScheduleEntry({...entry, date: form.get("date") ?? ''})
+      })
+    }))
+    fetchScheduleEntries();
+    event.target.reset();
   }
 
   function facilityUsageForPeriod(period) {
@@ -197,6 +215,17 @@ const ScheduleEditor = () => {
           })}
         </TableBody>
       </Table>
+      <View as="form" margin="3rem 0" onSubmit={saveDateToScheduleEntries}>
+        <Heading level={3}>Save Schedule</Heading>
+        <Flex direction="row" justifyContent="center">
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker label="Date" name="date" />
+          </LocalizationProvider>
+          <Button type="submit" variation="primary">
+            Save
+          </Button>
+        </Flex>
+      </View>
     </View>
   );
 };
