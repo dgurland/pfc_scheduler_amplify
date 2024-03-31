@@ -1,6 +1,7 @@
 import { Select, MenuItem } from "@mui/material";
 import { Activity, ScheduleEntry } from "../../types"
 import React, { useEffect, useState } from "react";
+import "../../App.css";
 type ActivityProps = {
 	scheduleEntry: ScheduleEntry,
 	activities: Activity[],
