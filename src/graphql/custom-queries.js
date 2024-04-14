@@ -21,3 +21,28 @@ export const listActivitiesWithFacilityData = /* GraphQL */ `
     }
   }
 `;
+
+export const listScheduleEntriesWithActivityNames = /* GraphQL */ `
+query ListScheduleEntries($filter: ModelScheduleEntryFilterInput, $limit: Int, $nextToken: String) {
+  listScheduleEntries(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      period,
+      division,
+      schedule {
+        date
+      },
+      activities {
+        items {
+          activity {
+            name
+          }
+          label
+        }
+      }
+    }
+    nextToken
+    __typename
+  }
+}
+
+`;

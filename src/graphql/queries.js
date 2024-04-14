@@ -45,6 +45,10 @@ export const getActivity = /* GraphQL */ `
         updatedAt
         __typename
       }
+      scheduleEntries {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -72,20 +76,63 @@ export const listActivities = /* GraphQL */ `
     }
   }
 `;
+export const getSchedule = /* GraphQL */ `
+  query GetSchedule($id: ID!) {
+    getSchedule(id: $id) {
+      id
+      date
+      periods
+      entries {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listSchedules = /* GraphQL */ `
+  query ListSchedules(
+    $filter: ModelScheduleFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listSchedules(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
 export const getScheduleEntry = /* GraphQL */ `
   query GetScheduleEntry($id: ID!) {
     getScheduleEntry(id: $id) {
       id
-      date
-      activityIds
+      period
+      division
+      schedule {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        __typename
+      }
       activities {
         nextToken
         __typename
       }
-      division
-      period
       createdAt
       updatedAt
+      scheduleEntriesId
       __typename
     }
   }
@@ -99,12 +146,67 @@ export const listScheduleEntries = /* GraphQL */ `
     listScheduleEntries(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        date
-        activityIds
-        division
         period
+        division
         createdAt
         updatedAt
+        scheduleEntriesId
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getActivityScheduleEntry = /* GraphQL */ `
+  query GetActivityScheduleEntry($id: ID!) {
+    getActivityScheduleEntry(id: $id) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      scheduleEntry {
+        id
+        period
+        division
+        createdAt
+        updatedAt
+        scheduleEntriesId
+        __typename
+      }
+      label
+      createdAt
+      updatedAt
+      activityScheduleEntriesId
+      scheduleEntryActivitiesId
+      __typename
+    }
+  }
+`;
+export const listActivityScheduleEntries = /* GraphQL */ `
+  query ListActivityScheduleEntries(
+    $filter: ModelActivityScheduleEntryFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listActivityScheduleEntries(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        label
+        createdAt
+        updatedAt
+        activityScheduleEntriesId
+        scheduleEntryActivitiesId
         __typename
       }
       nextToken

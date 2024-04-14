@@ -2,5 +2,5 @@
   "AppSyncApiName": "pfcscheduleramplify",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false,
-  "AuthModeLastUpdated": "2024-03-18T00:47:59.926Z"
+  "AuthModeLastUpdated": "2024-04-08T01:01:51.471Z"
 }

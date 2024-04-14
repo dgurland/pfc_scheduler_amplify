@@ -48,6 +48,10 @@ export const onCreateActivity = /* GraphQL */ `
         updatedAt
         __typename
       }
+      scheduleEntries {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -66,6 +70,10 @@ export const onUpdateActivity = /* GraphQL */ `
         name
         createdAt
         updatedAt
+        __typename
+      }
+      scheduleEntries {
+        nextToken
         __typename
       }
       createdAt
@@ -88,6 +96,58 @@ export const onDeleteActivity = /* GraphQL */ `
         updatedAt
         __typename
       }
+      scheduleEntries {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateSchedule = /* GraphQL */ `
+  subscription OnCreateSchedule($filter: ModelSubscriptionScheduleFilterInput) {
+    onCreateSchedule(filter: $filter) {
+      id
+      date
+      periods
+      entries {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateSchedule = /* GraphQL */ `
+  subscription OnUpdateSchedule($filter: ModelSubscriptionScheduleFilterInput) {
+    onUpdateSchedule(filter: $filter) {
+      id
+      date
+      periods
+      entries {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteSchedule = /* GraphQL */ `
+  subscription OnDeleteSchedule($filter: ModelSubscriptionScheduleFilterInput) {
+    onDeleteSchedule(filter: $filter) {
+      id
+      date
+      periods
+      entries {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -100,16 +160,23 @@ export const onCreateScheduleEntry = /* GraphQL */ `
   ) {
     onCreateScheduleEntry(filter: $filter) {
       id
-      date
-      activityIds
+      period
+      division
+      schedule {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        __typename
+      }
       activities {
         nextToken
         __typename
       }
-      division
-      period
       createdAt
       updatedAt
+      scheduleEntriesId
       __typename
     }
   }
@@ -120,16 +187,23 @@ export const onUpdateScheduleEntry = /* GraphQL */ `
   ) {
     onUpdateScheduleEntry(filter: $filter) {
       id
-      date
-      activityIds
+      period
+      division
+      schedule {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        __typename
+      }
       activities {
         nextToken
         __typename
       }
-      division
-      period
       createdAt
       updatedAt
+      scheduleEntriesId
       __typename
     }
   }
@@ -140,16 +214,122 @@ export const onDeleteScheduleEntry = /* GraphQL */ `
   ) {
     onDeleteScheduleEntry(filter: $filter) {
       id
-      date
-      activityIds
+      period
+      division
+      schedule {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        __typename
+      }
       activities {
         nextToken
         __typename
       }
-      division
-      period
       createdAt
       updatedAt
+      scheduleEntriesId
+      __typename
+    }
+  }
+`;
+export const onCreateActivityScheduleEntry = /* GraphQL */ `
+  subscription OnCreateActivityScheduleEntry(
+    $filter: ModelSubscriptionActivityScheduleEntryFilterInput
+  ) {
+    onCreateActivityScheduleEntry(filter: $filter) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      scheduleEntry {
+        id
+        period
+        division
+        createdAt
+        updatedAt
+        scheduleEntriesId
+        __typename
+      }
+      label
+      createdAt
+      updatedAt
+      activityScheduleEntriesId
+      scheduleEntryActivitiesId
+      __typename
+    }
+  }
+`;
+export const onUpdateActivityScheduleEntry = /* GraphQL */ `
+  subscription OnUpdateActivityScheduleEntry(
+    $filter: ModelSubscriptionActivityScheduleEntryFilterInput
+  ) {
+    onUpdateActivityScheduleEntry(filter: $filter) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      scheduleEntry {
+        id
+        period
+        division
+        createdAt
+        updatedAt
+        scheduleEntriesId
+        __typename
+      }
+      label
+      createdAt
+      updatedAt
+      activityScheduleEntriesId
+      scheduleEntryActivitiesId
+      __typename
+    }
+  }
+`;
+export const onDeleteActivityScheduleEntry = /* GraphQL */ `
+  subscription OnDeleteActivityScheduleEntry(
+    $filter: ModelSubscriptionActivityScheduleEntryFilterInput
+  ) {
+    onDeleteActivityScheduleEntry(filter: $filter) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      scheduleEntry {
+        id
+        period
+        division
+        createdAt
+        updatedAt
+        scheduleEntriesId
+        __typename
+      }
+      label
+      createdAt
+      updatedAt
+      activityScheduleEntriesId
+      scheduleEntryActivitiesId
       __typename
     }
   }

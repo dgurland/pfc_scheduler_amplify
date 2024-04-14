@@ -60,6 +60,10 @@ export const createActivity = /* GraphQL */ `
         updatedAt
         __typename
       }
+      scheduleEntries {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -81,6 +85,10 @@ export const updateActivity = /* GraphQL */ `
         name
         createdAt
         updatedAt
+        __typename
+      }
+      scheduleEntries {
+        nextToken
         __typename
       }
       createdAt
@@ -106,6 +114,67 @@ export const deleteActivity = /* GraphQL */ `
         updatedAt
         __typename
       }
+      scheduleEntries {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const createSchedule = /* GraphQL */ `
+  mutation CreateSchedule(
+    $input: CreateScheduleInput!
+    $condition: ModelScheduleConditionInput
+  ) {
+    createSchedule(input: $input, condition: $condition) {
+      id
+      date
+      periods
+      entries {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateSchedule = /* GraphQL */ `
+  mutation UpdateSchedule(
+    $input: UpdateScheduleInput!
+    $condition: ModelScheduleConditionInput
+  ) {
+    updateSchedule(input: $input, condition: $condition) {
+      id
+      date
+      periods
+      entries {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteSchedule = /* GraphQL */ `
+  mutation DeleteSchedule(
+    $input: DeleteScheduleInput!
+    $condition: ModelScheduleConditionInput
+  ) {
+    deleteSchedule(input: $input, condition: $condition) {
+      id
+      date
+      periods
+      entries {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -119,16 +188,23 @@ export const createScheduleEntry = /* GraphQL */ `
   ) {
     createScheduleEntry(input: $input, condition: $condition) {
       id
-      date
-      activityIds
+      period
+      division
+      schedule {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        __typename
+      }
       activities {
         nextToken
         __typename
       }
-      division
-      period
       createdAt
       updatedAt
+      scheduleEntriesId
       __typename
     }
   }
@@ -140,16 +216,23 @@ export const updateScheduleEntry = /* GraphQL */ `
   ) {
     updateScheduleEntry(input: $input, condition: $condition) {
       id
-      date
-      activityIds
+      period
+      division
+      schedule {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        __typename
+      }
       activities {
         nextToken
         __typename
       }
-      division
-      period
       createdAt
       updatedAt
+      scheduleEntriesId
       __typename
     }
   }
@@ -161,16 +244,125 @@ export const deleteScheduleEntry = /* GraphQL */ `
   ) {
     deleteScheduleEntry(input: $input, condition: $condition) {
       id
-      date
-      activityIds
+      period
+      division
+      schedule {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        __typename
+      }
       activities {
         nextToken
         __typename
       }
-      division
-      period
       createdAt
       updatedAt
+      scheduleEntriesId
+      __typename
+    }
+  }
+`;
+export const createActivityScheduleEntry = /* GraphQL */ `
+  mutation CreateActivityScheduleEntry(
+    $input: CreateActivityScheduleEntryInput!
+    $condition: ModelActivityScheduleEntryConditionInput
+  ) {
+    createActivityScheduleEntry(input: $input, condition: $condition) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      scheduleEntry {
+        id
+        period
+        division
+        createdAt
+        updatedAt
+        scheduleEntriesId
+        __typename
+      }
+      label
+      createdAt
+      updatedAt
+      activityScheduleEntriesId
+      scheduleEntryActivitiesId
+      __typename
+    }
+  }
+`;
+export const updateActivityScheduleEntry = /* GraphQL */ `
+  mutation UpdateActivityScheduleEntry(
+    $input: UpdateActivityScheduleEntryInput!
+    $condition: ModelActivityScheduleEntryConditionInput
+  ) {
+    updateActivityScheduleEntry(input: $input, condition: $condition) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      scheduleEntry {
+        id
+        period
+        division
+        createdAt
+        updatedAt
+        scheduleEntriesId
+        __typename
+      }
+      label
+      createdAt
+      updatedAt
+      activityScheduleEntriesId
+      scheduleEntryActivitiesId
+      __typename
+    }
+  }
+`;
+export const deleteActivityScheduleEntry = /* GraphQL */ `
+  mutation DeleteActivityScheduleEntry(
+    $input: DeleteActivityScheduleEntryInput!
+    $condition: ModelActivityScheduleEntryConditionInput
+  ) {
+    deleteActivityScheduleEntry(input: $input, condition: $condition) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      scheduleEntry {
+        id
+        period
+        division
+        createdAt
+        updatedAt
+        scheduleEntriesId
+        __typename
+      }
+      label
+      createdAt
+      updatedAt
+      activityScheduleEntriesId
+      scheduleEntryActivitiesId
       __typename
     }
   }

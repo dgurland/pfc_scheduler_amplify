@@ -1,28 +1,35 @@
-# This "input" configures a global authorization rule to enable public access to
-# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
-input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
-
-type Facility @model @auth(rules: [ { allow: public } ] )
-{  
+type Facility @model @auth(rules: [{allow: public}]) {
   id: ID!
   name: String!
 }
 
-type Activity @model @auth(rules: [ { allow: public } ] )
-{  
+type Activity @model @auth(rules: [{allow: public}]) {
   id: ID!
   name: String!
   usage: Int!
   facilityId: ID
   facility: Facility @hasOne(fields: ["facilityId"])
+  scheduleEntries: [ActivityScheduleEntry] @hasMany
 }
 
-type ScheduleEntry @model @auth(rules: [ { allow: public } ] )
-{
+type Schedule @model @auth(rules: [{allow: public}]) {
   id: ID!
-  date: String
-  activityIds: [ID]
-  activities: [Activity] @hasMany(fields: ["activityIds"])
-  division: Int!
+  date: String!
+  periods: Int!
+  entries: [ScheduleEntry] @hasMany
+}
+
+type ScheduleEntry @model @auth(rules: [{allow: public}]) {
+  id: ID!
   period: Int!
+  division: Int!
+  schedule: Schedule @belongsTo
+  activities: [ActivityScheduleEntry] @hasMany
+}
+
+type ActivityScheduleEntry @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  activity: Activity @belongsTo
+  scheduleEntry: ScheduleEntry @belongsTo
+  label: String
 }

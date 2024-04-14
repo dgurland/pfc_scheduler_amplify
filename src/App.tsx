@@ -13,6 +13,7 @@ import ActivityFacility from "./templates/ActivityFacility";
 import ScheduleEditor from "./templates/ScheduleEditor";
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
 import { AppBar, Box, Button, Toolbar } from "@mui/material";
+import ScheduleDisplay from "./templates/ScheduleDisplay";
 
 
 const App = ({ signOut }) => {
@@ -51,7 +52,7 @@ const App = ({ signOut }) => {
     {
       path: "/",
       name: "Home",
-      element: <div>Hello World</div>,
+      element: <ScheduleDisplay date="04/14/2024" />,
       enabled: true,
       order: 0
     },
