@@ -1,10 +1,10 @@
 import React, { useState, useEffect, SetStateAction } from "react";
-import { RadioGroup, FormControlLabel, Radio, InputLabel, Select, Button } from "@mui/material";
+import { RadioGroup, FormControlLabel, Radio, InputLabel, Select, Button, MenuItem } from "@mui/material";
 import { Schedule, CREATE_UPDATE } from "../../types";
 import {
   View,
   Heading,
-  Flex
+  Flex,
 } from "@aws-amplify/ui-react";
 import { DatePicker } from "@mui/x-date-pickers";
 import "@aws-amplify/ui-react/styles.css";
@@ -36,6 +36,7 @@ const GetStarted = (props: GetStartedProps) => {
   const [period, setPeriod] = useState(-1);
   const [submitEnabled, setSubmitEnabled] = useState(false);
   const API = generateClient({ authMode: 'apiKey' });
+  const periodsOptions = [2, 3, 4, 5, 6, 7, 8];
 
   useEffect(() => {
     setSubmitEnabled(isSubmitEnabled())
@@ -142,13 +143,12 @@ const GetStarted = (props: GetStartedProps) => {
           <>
             <InputLabel>Number of Periods</InputLabel>
             <Select name="numPeriods" defaultValue={6} value={period} onChange={(event) => setPeriod(event.target.value as number)}>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-              <option value={5}>5</option>
-              <option value={6}>6</option>
-              <option value={7}>7</option>
-              <option value={8}>8</option>
+              {periodsOptions.map((i) => {
+                return (
+                  <MenuItem value={i} key={i}>{i}</MenuItem>
+                )
+              })
+              }
             </Select>
           </>
         )}
@@ -156,9 +156,9 @@ const GetStarted = (props: GetStartedProps) => {
           <>
             <InputLabel>Choose an existing schedule to use as a template</InputLabel>
             <Select name="template" value={templateId} defaultValue='' onChange={(event) => setTemplateId(event.target.value as string)}>
-              {schedules.map((schedule) => {
+              {schedules.map((schedule, i) => {
                 return (
-                  <option value={schedule.id}>{schedule.date}</option>
+                  <MenuItem value={schedule.id} key={i}>{schedule.date}</MenuItem>
                 )
               })}
             </Select>
