@@ -46,3 +46,39 @@ query ListScheduleEntries($filter: ModelScheduleEntryFilterInput, $limit: Int, $
 }
 
 `;
+
+export const listSchedules = /* GraphQL */ `
+  query ListSchedules(
+    $filter: ModelScheduleFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listSchedules(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        date
+        periods
+        createdAt
+        updatedAt
+        entries {
+          items {
+            id
+            period
+            division
+            activities {
+              items {
+                activity {
+                  id
+                }
+                label
+              }
+            }
+          }
+        }
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;

@@ -10,7 +10,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import ActivityFacility from "./templates/ActivityFacility";
-import ScheduleEditor from "./templates/ScheduleEditor";
+import ScheduleEditLayout from "./templates/ScheduleEdit/ScheduleEditLayout";
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
 import { AppBar, Box, Button, Toolbar } from "@mui/material";
 import ScheduleDisplay from "./templates/ScheduleDisplay";
@@ -23,7 +23,7 @@ const App = ({ signOut }) => {
   async function handleFetchUserAttributes() {
     try {
       const ua = await fetchUserAttributes();
-      console.log(ua);
+      // console.log(ua);
       setUserAttributes(ua)
     } catch (error) {
       console.log(error);
@@ -44,7 +44,7 @@ const App = ({ signOut }) => {
     },
     {
       path: "/schedule-edit",
-      element: <ScheduleEditor />,
+      element: <ScheduleEditLayout />,
       name: "Edit Schedules",
       enabled: (userAttributes['custom:authLevel'] ?? ''),
       order: 1

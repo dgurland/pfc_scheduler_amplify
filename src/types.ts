@@ -9,6 +9,12 @@ export enum DIVISIONS {
     HSB
 }
 
+export enum CREATE_UPDATE {
+    CREATE = "create",
+    EDIT = "edit",
+    TEMPLATE = "template"
+}
+
 export type Facility = {
     id: string;
     name: string;
@@ -36,4 +42,11 @@ export type ScheduleEntryCreationSubmission = {
     activityIds: string[];
     division: number;
     period: number;
+}
+
+export type Schedule = {
+    date: string;
+    id: string;
+    entries: ScheduleEntry[];
+    periods: number;
 }
