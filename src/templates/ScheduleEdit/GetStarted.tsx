@@ -12,7 +12,6 @@ import { generateClient } from 'aws-amplify/api';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import "../../App.css";
-import { listSchedules } from "../../graphql/custom-queries";
 import { Dayjs } from "dayjs";
 import {
   createSchedule as createScheduleMutation,
@@ -23,12 +22,14 @@ import {
 } from "../../graphql/custom-mutations"
 
 type GetStartedProps = {
-  setSchedule: React.Dispatch<SetStateAction<Schedule | null>>
+  setSchedule: React.Dispatch<SetStateAction<Schedule | null>>,
+  schedules: Schedule[];
+  setPreviousScheduleId: React.Dispatch<SetStateAction<string>>
 }
 
 const GetStarted = (props: GetStartedProps) => {
+  const { schedules, setPreviousScheduleId } = props;
   const [createEdit, setCreateOrEdit] = useState<CREATE_UPDATE>(CREATE_UPDATE.CREATE);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [date, setDate] = useState<Dayjs | null>(null);
   const [templateId, setTemplateId] = useState<string>('');
   const [period, setPeriod] = useState(-1);
@@ -36,18 +37,8 @@ const GetStarted = (props: GetStartedProps) => {
   const API = generateClient({ authMode: 'apiKey' });
 
   useEffect(() => {
-    fetchExistingSchedules();
-  }, [])
-
-  useEffect(() => {
     setSubmitEnabled(isSubmitEnabled())
   }, [date, templateId, period, createEdit])
-
-  async function fetchExistingSchedules() {
-    const apiData = await API.graphql({ query: listSchedules });
-    const schedulesFromAPI = apiData.data.listSchedules.items;
-    setSchedules(schedulesFromAPI);
-  }
 
   async function createSchedule() {
     let existingSchedule: Schedule | undefined = undefined;
@@ -82,6 +73,10 @@ const GetStarted = (props: GetStartedProps) => {
           })
         }))
       }
+    }
+
+    if (existingSchedule && createEdit == CREATE_UPDATE.EDIT) {
+      setPreviousScheduleId(existingSchedule.id);
     }
 
     return schedule;

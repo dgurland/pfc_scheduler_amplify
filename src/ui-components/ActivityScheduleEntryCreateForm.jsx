@@ -9,9 +9,9 @@ import * as React from "react";
 import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
 import { generateClient } from "aws-amplify/api";
-import { createScheduleEntry } from "../graphql/mutations";
+import { createActivityScheduleEntry } from "../graphql/mutations";
 const client = generateClient();
-export default function ScheduleEntryCreateForm(props) {
+export default function ActivityScheduleEntryCreateForm(props) {
   const {
     clearOnSuccess = true,
     onSuccess,
@@ -23,20 +23,16 @@ export default function ScheduleEntryCreateForm(props) {
     ...rest
   } = props;
   const initialValues = {
-    period: "",
-    division: "",
+    label: "",
   };
-  const [period, setPeriod] = React.useState(initialValues.period);
-  const [division, setDivision] = React.useState(initialValues.division);
+  const [label, setLabel] = React.useState(initialValues.label);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    setPeriod(initialValues.period);
-    setDivision(initialValues.division);
+    setLabel(initialValues.label);
     setErrors({});
   };
   const validations = {
-    period: [{ type: "Required" }],
-    division: [{ type: "Required" }],
+    label: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -64,8 +60,7 @@ export default function ScheduleEntryCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          period,
-          division,
+          label,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -96,7 +91,7 @@ export default function ScheduleEntryCreateForm(props) {
             }
           });
           await client.graphql({
-            query: createScheduleEntry.replaceAll("__typename", ""),
+            query: createActivityScheduleEntry.replaceAll("__typename", ""),
             variables: {
               input: {
                 ...modelFields,
@@ -116,66 +111,32 @@ export default function ScheduleEntryCreateForm(props) {
           }
         }
       }}
-      {...getOverrideProps(overrides, "ScheduleEntryCreateForm")}
+      {...getOverrideProps(overrides, "ActivityScheduleEntryCreateForm")}
       {...rest}
     >
       <TextField
-        label="Period"
-        isRequired={true}
+        label="Label"
+        isRequired={false}
         isReadOnly={false}
-        type="number"
-        step="any"
-        value={period}
+        value={label}
         onChange={(e) => {
-          let value = isNaN(parseInt(e.target.value))
-            ? e.target.value
-            : parseInt(e.target.value);
+          let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              period: value,
-              division,
+              label: value,
             };
             const result = onChange(modelFields);
-            value = result?.period ?? value;
+            value = result?.label ?? value;
           }
-          if (errors.period?.hasError) {
-            runValidationTasks("period", value);
+          if (errors.label?.hasError) {
+            runValidationTasks("label", value);
           }
-          setPeriod(value);
+          setLabel(value);
         }}
-        onBlur={() => runValidationTasks("period", period)}
-        errorMessage={errors.period?.errorMessage}
-        hasError={errors.period?.hasError}
-        {...getOverrideProps(overrides, "period")}
-      ></TextField>
-      <TextField
-        label="Division"
-        isRequired={true}
-        isReadOnly={false}
-        type="number"
-        step="any"
-        value={division}
-        onChange={(e) => {
-          let value = isNaN(parseInt(e.target.value))
-            ? e.target.value
-            : parseInt(e.target.value);
-          if (onChange) {
-            const modelFields = {
-              period,
-              division: value,
-            };
-            const result = onChange(modelFields);
-            value = result?.division ?? value;
-          }
-          if (errors.division?.hasError) {
-            runValidationTasks("division", value);
-          }
-          setDivision(value);
-        }}
-        onBlur={() => runValidationTasks("division", division)}
-        errorMessage={errors.division?.errorMessage}
-        hasError={errors.division?.hasError}
-        {...getOverrideProps(overrides, "division")}
+        onBlur={() => runValidationTasks("label", label)}
+        errorMessage={errors.label?.errorMessage}
+        hasError={errors.label?.hasError}
+        {...getOverrideProps(overrides, "label")}
       ></TextField>
       <Flex
         justifyContent="space-between"

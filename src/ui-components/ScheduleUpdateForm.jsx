@@ -9,11 +9,13 @@ import * as React from "react";
 import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
 import { generateClient } from "aws-amplify/api";
-import { createScheduleEntry } from "../graphql/mutations";
+import { getSchedule } from "../graphql/queries";
+import { updateSchedule } from "../graphql/mutations";
 const client = generateClient();
-export default function ScheduleEntryCreateForm(props) {
+export default function ScheduleUpdateForm(props) {
   const {
-    clearOnSuccess = true,
+    id: idProp,
+    schedule: scheduleModelProp,
     onSuccess,
     onError,
     onSubmit,
@@ -23,20 +25,39 @@ export default function ScheduleEntryCreateForm(props) {
     ...rest
   } = props;
   const initialValues = {
-    period: "",
-    division: "",
+    date: "",
+    periods: "",
   };
-  const [period, setPeriod] = React.useState(initialValues.period);
-  const [division, setDivision] = React.useState(initialValues.division);
+  const [date, setDate] = React.useState(initialValues.date);
+  const [periods, setPeriods] = React.useState(initialValues.periods);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    setPeriod(initialValues.period);
-    setDivision(initialValues.division);
+    const cleanValues = scheduleRecord
+      ? { ...initialValues, ...scheduleRecord }
+      : initialValues;
+    setDate(cleanValues.date);
+    setPeriods(cleanValues.periods);
     setErrors({});
   };
+  const [scheduleRecord, setScheduleRecord] = React.useState(scheduleModelProp);
+  React.useEffect(() => {
+    const queryData = async () => {
+      const record = idProp
+        ? (
+            await client.graphql({
+              query: getSchedule.replaceAll("__typename", ""),
+              variables: { id: idProp },
+            })
+          )?.data?.getSchedule
+        : scheduleModelProp;
+      setScheduleRecord(record);
+    };
+    queryData();
+  }, [idProp, scheduleModelProp]);
+  React.useEffect(resetStateValues, [scheduleRecord]);
   const validations = {
-    period: [{ type: "Required" }],
-    division: [{ type: "Required" }],
+    date: [{ type: "Required" }],
+    periods: [{ type: "Required" }],
   };
   const runValidationTasks = async (
     fieldName,
@@ -64,8 +85,8 @@ export default function ScheduleEntryCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          period,
-          division,
+          date,
+          periods,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -96,18 +117,16 @@ export default function ScheduleEntryCreateForm(props) {
             }
           });
           await client.graphql({
-            query: createScheduleEntry.replaceAll("__typename", ""),
+            query: updateSchedule.replaceAll("__typename", ""),
             variables: {
               input: {
+                id: scheduleRecord.id,
                 ...modelFields,
               },
             },
           });
           if (onSuccess) {
             onSuccess(modelFields);
-          }
-          if (clearOnSuccess) {
-            resetStateValues();
           }
         } catch (err) {
           if (onError) {
@@ -116,79 +135,76 @@ export default function ScheduleEntryCreateForm(props) {
           }
         }
       }}
-      {...getOverrideProps(overrides, "ScheduleEntryCreateForm")}
+      {...getOverrideProps(overrides, "ScheduleUpdateForm")}
       {...rest}
     >
       <TextField
-        label="Period"
+        label="Date"
         isRequired={true}
         isReadOnly={false}
-        type="number"
-        step="any"
-        value={period}
+        value={date}
         onChange={(e) => {
-          let value = isNaN(parseInt(e.target.value))
-            ? e.target.value
-            : parseInt(e.target.value);
+          let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              period: value,
-              division,
+              date: value,
+              periods,
             };
             const result = onChange(modelFields);
-            value = result?.period ?? value;
+            value = result?.date ?? value;
           }
-          if (errors.period?.hasError) {
-            runValidationTasks("period", value);
+          if (errors.date?.hasError) {
+            runValidationTasks("date", value);
           }
-          setPeriod(value);
+          setDate(value);
         }}
-        onBlur={() => runValidationTasks("period", period)}
-        errorMessage={errors.period?.errorMessage}
-        hasError={errors.period?.hasError}
-        {...getOverrideProps(overrides, "period")}
+        onBlur={() => runValidationTasks("date", date)}
+        errorMessage={errors.date?.errorMessage}
+        hasError={errors.date?.hasError}
+        {...getOverrideProps(overrides, "date")}
       ></TextField>
       <TextField
-        label="Division"
+        label="Periods"
         isRequired={true}
         isReadOnly={false}
         type="number"
         step="any"
-        value={division}
+        value={periods}
         onChange={(e) => {
           let value = isNaN(parseInt(e.target.value))
             ? e.target.value
             : parseInt(e.target.value);
           if (onChange) {
             const modelFields = {
-              period,
-              division: value,
+              date,
+              periods: value,
             };
             const result = onChange(modelFields);
-            value = result?.division ?? value;
+            value = result?.periods ?? value;
           }
-          if (errors.division?.hasError) {
-            runValidationTasks("division", value);
+          if (errors.periods?.hasError) {
+            runValidationTasks("periods", value);
           }
-          setDivision(value);
+          setPeriods(value);
         }}
-        onBlur={() => runValidationTasks("division", division)}
-        errorMessage={errors.division?.errorMessage}
-        hasError={errors.division?.hasError}
-        {...getOverrideProps(overrides, "division")}
+        onBlur={() => runValidationTasks("periods", periods)}
+        errorMessage={errors.periods?.errorMessage}
+        hasError={errors.periods?.hasError}
+        {...getOverrideProps(overrides, "periods")}
       ></TextField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}
       >
         <Button
-          children="Clear"
+          children="Reset"
           type="reset"
           onClick={(event) => {
             event.preventDefault();
             resetStateValues();
           }}
-          {...getOverrideProps(overrides, "ClearButton")}
+          isDisabled={!(idProp || scheduleModelProp)}
+          {...getOverrideProps(overrides, "ResetButton")}
         ></Button>
         <Flex
           gap="15px"
@@ -198,7 +214,10 @@ export default function ScheduleEntryCreateForm(props) {
             children="Submit"
             type="submit"
             variation="primary"
-            isDisabled={Object.values(errors).some((e) => e?.hasError)}
+            isDisabled={
+              !(idProp || scheduleModelProp) ||
+              Object.values(errors).some((e) => e?.hasError)
+            }
             {...getOverrideProps(overrides, "SubmitButton")}
           ></Button>
         </Flex>

@@ -6,178 +6,12 @@
 
 /* eslint-disable */
 import * as React from "react";
-import {
-  Badge,
-  Button,
-  Divider,
-  Flex,
-  Grid,
-  Icon,
-  ScrollView,
-  Text,
-  TextField,
-  useTheme,
-} from "@aws-amplify/ui-react";
+import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
 import { generateClient } from "aws-amplify/api";
 import { getScheduleEntry } from "../graphql/queries";
 import { updateScheduleEntry } from "../graphql/mutations";
 const client = generateClient();
-function ArrayField({
-  items = [],
-  onChange,
-  label,
-  inputFieldRef,
-  children,
-  hasError,
-  setFieldValue,
-  currentFieldValue,
-  defaultFieldValue,
-  lengthLimit,
-  getBadgeText,
-  runValidationTasks,
-  errorMessage,
-}) {
-  const labelElement = <Text>{label}</Text>;
-  const {
-    tokens: {
-      components: {
-        fieldmessages: { error: errorStyles },
-      },
-    },
-  } = useTheme();
-  const [selectedBadgeIndex, setSelectedBadgeIndex] = React.useState();
-  const [isEditing, setIsEditing] = React.useState();
-  React.useEffect(() => {
-    if (isEditing) {
-      inputFieldRef?.current?.focus();
-    }
-  }, [isEditing]);
-  const removeItem = async (removeIndex) => {
-    const newItems = items.filter((value, index) => index !== removeIndex);
-    await onChange(newItems);
-    setSelectedBadgeIndex(undefined);
-  };
-  const addItem = async () => {
-    const { hasError } = runValidationTasks();
-    if (
-      currentFieldValue !== undefined &&
-      currentFieldValue !== null &&
-      currentFieldValue !== "" &&
-      !hasError
-    ) {
-      const newItems = [...items];
-      if (selectedBadgeIndex !== undefined) {
-        newItems[selectedBadgeIndex] = currentFieldValue;
-        setSelectedBadgeIndex(undefined);
-      } else {
-        newItems.push(currentFieldValue);
-      }
-      await onChange(newItems);
-      setIsEditing(false);
-    }
-  };
-  const arraySection = (
-    <React.Fragment>
-      {!!items?.length && (
-        <ScrollView height="inherit" width="inherit" maxHeight={"7rem"}>
-          {items.map((value, index) => {
-            return (
-              <Badge
-                key={index}
-                style={{
-                  cursor: "pointer",
-                  alignItems: "center",
-                  marginRight: 3,
-                  marginTop: 3,
-                  backgroundColor:
-                    index === selectedBadgeIndex ? "#B8CEF9" : "",
-                }}
-                onClick={() => {
-                  setSelectedBadgeIndex(index);
-                  setFieldValue(items[index]);
-                  setIsEditing(true);
-                }}
-              >
-                {getBadgeText ? getBadgeText(value) : value.toString()}
-                <Icon
-                  style={{
-                    cursor: "pointer",
-                    paddingLeft: 3,
-                    width: 20,
-                    height: 20,
-                  }}
-                  viewBox={{ width: 20, height: 20 }}
-                  paths={[
-                    {
-                      d: "M10 10l5.09-5.09L10 10l5.09 5.09L10 10zm0 0L4.91 4.91 10 10l-5.09 5.09L10 10z",
-                      stroke: "black",
-                    },
-                  ]}
-                  ariaLabel="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    removeItem(index);
-                  }}
-                />
-              </Badge>
-            );
-          })}
-        </ScrollView>
-      )}
-      <Divider orientation="horizontal" marginTop={5} />
-    </React.Fragment>
-  );
-  if (lengthLimit !== undefined && items.length >= lengthLimit && !isEditing) {
-    return (
-      <React.Fragment>
-        {labelElement}
-        {arraySection}
-      </React.Fragment>
-    );
-  }
-  return (
-    <React.Fragment>
-      {labelElement}
-      {isEditing && children}
-      {!isEditing ? (
-        <>
-          <Button
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            Add item
-          </Button>
-          {errorMessage && hasError && (
-            <Text color={errorStyles.color} fontSize={errorStyles.fontSize}>
-              {errorMessage}
-            </Text>
-          )}
-        </>
-      ) : (
-        <Flex justifyContent="flex-end">
-          {(currentFieldValue || isEditing) && (
-            <Button
-              children="Cancel"
-              type="button"
-              size="small"
-              onClick={() => {
-                setFieldValue(defaultFieldValue);
-                setIsEditing(false);
-                setSelectedBadgeIndex(undefined);
-              }}
-            ></Button>
-          )}
-          <Button size="small" variation="link" onClick={addItem}>
-            {selectedBadgeIndex !== undefined ? "Save" : "Add"}
-          </Button>
-        </Flex>
-      )}
-      {arraySection}
-    </React.Fragment>
-  );
-}
 export default function ScheduleEntryUpdateForm(props) {
   const {
     id: idProp,
@@ -191,27 +25,18 @@ export default function ScheduleEntryUpdateForm(props) {
     ...rest
   } = props;
   const initialValues = {
-    date: "",
-    activityIds: [],
-    division: "",
     period: "",
+    division: "",
   };
-  const [date, setDate] = React.useState(initialValues.date);
-  const [activityIds, setActivityIds] = React.useState(
-    initialValues.activityIds
-  );
-  const [division, setDivision] = React.useState(initialValues.division);
   const [period, setPeriod] = React.useState(initialValues.period);
+  const [division, setDivision] = React.useState(initialValues.division);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     const cleanValues = scheduleEntryRecord
       ? { ...initialValues, ...scheduleEntryRecord }
       : initialValues;
-    setDate(cleanValues.date);
-    setActivityIds(cleanValues.activityIds ?? []);
-    setCurrentActivityIdsValue("");
-    setDivision(cleanValues.division);
     setPeriod(cleanValues.period);
+    setDivision(cleanValues.division);
     setErrors({});
   };
   const [scheduleEntryRecord, setScheduleEntryRecord] = React.useState(
@@ -232,14 +57,9 @@ export default function ScheduleEntryUpdateForm(props) {
     queryData();
   }, [idProp, scheduleEntryModelProp]);
   React.useEffect(resetStateValues, [scheduleEntryRecord]);
-  const [currentActivityIdsValue, setCurrentActivityIdsValue] =
-    React.useState("");
-  const activityIdsRef = React.createRef();
   const validations = {
-    date: [],
-    activityIds: [],
-    division: [{ type: "Required" }],
     period: [{ type: "Required" }],
+    division: [{ type: "Required" }],
   };
   const runValidationTasks = async (
     fieldName,
@@ -267,10 +87,8 @@ export default function ScheduleEntryUpdateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          date: date ?? null,
-          activityIds: activityIds ?? null,
-          division,
           period,
+          division,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -323,114 +141,6 @@ export default function ScheduleEntryUpdateForm(props) {
       {...rest}
     >
       <TextField
-        label="Date"
-        isRequired={false}
-        isReadOnly={false}
-        value={date}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              date: value,
-              activityIds,
-              division,
-              period,
-            };
-            const result = onChange(modelFields);
-            value = result?.date ?? value;
-          }
-          if (errors.date?.hasError) {
-            runValidationTasks("date", value);
-          }
-          setDate(value);
-        }}
-        onBlur={() => runValidationTasks("date", date)}
-        errorMessage={errors.date?.errorMessage}
-        hasError={errors.date?.hasError}
-        {...getOverrideProps(overrides, "date")}
-      ></TextField>
-      <ArrayField
-        onChange={async (items) => {
-          let values = items;
-          if (onChange) {
-            const modelFields = {
-              date,
-              activityIds: values,
-              division,
-              period,
-            };
-            const result = onChange(modelFields);
-            values = result?.activityIds ?? values;
-          }
-          setActivityIds(values);
-          setCurrentActivityIdsValue("");
-        }}
-        currentFieldValue={currentActivityIdsValue}
-        label={"Activity ids"}
-        items={activityIds}
-        hasError={errors?.activityIds?.hasError}
-        runValidationTasks={async () =>
-          await runValidationTasks("activityIds", currentActivityIdsValue)
-        }
-        errorMessage={errors?.activityIds?.errorMessage}
-        setFieldValue={setCurrentActivityIdsValue}
-        inputFieldRef={activityIdsRef}
-        defaultFieldValue={""}
-      >
-        <TextField
-          label="Activity ids"
-          isRequired={false}
-          isReadOnly={false}
-          value={currentActivityIdsValue}
-          onChange={(e) => {
-            let { value } = e.target;
-            if (errors.activityIds?.hasError) {
-              runValidationTasks("activityIds", value);
-            }
-            setCurrentActivityIdsValue(value);
-          }}
-          onBlur={() =>
-            runValidationTasks("activityIds", currentActivityIdsValue)
-          }
-          errorMessage={errors.activityIds?.errorMessage}
-          hasError={errors.activityIds?.hasError}
-          ref={activityIdsRef}
-          labelHidden={true}
-          {...getOverrideProps(overrides, "activityIds")}
-        ></TextField>
-      </ArrayField>
-      <TextField
-        label="Division"
-        isRequired={true}
-        isReadOnly={false}
-        type="number"
-        step="any"
-        value={division}
-        onChange={(e) => {
-          let value = isNaN(parseInt(e.target.value))
-            ? e.target.value
-            : parseInt(e.target.value);
-          if (onChange) {
-            const modelFields = {
-              date,
-              activityIds,
-              division: value,
-              period,
-            };
-            const result = onChange(modelFields);
-            value = result?.division ?? value;
-          }
-          if (errors.division?.hasError) {
-            runValidationTasks("division", value);
-          }
-          setDivision(value);
-        }}
-        onBlur={() => runValidationTasks("division", division)}
-        errorMessage={errors.division?.errorMessage}
-        hasError={errors.division?.hasError}
-        {...getOverrideProps(overrides, "division")}
-      ></TextField>
-      <TextField
         label="Period"
         isRequired={true}
         isReadOnly={false}
@@ -443,10 +153,8 @@ export default function ScheduleEntryUpdateForm(props) {
             : parseInt(e.target.value);
           if (onChange) {
             const modelFields = {
-              date,
-              activityIds,
-              division,
               period: value,
+              division,
             };
             const result = onChange(modelFields);
             value = result?.period ?? value;
@@ -460,6 +168,35 @@ export default function ScheduleEntryUpdateForm(props) {
         errorMessage={errors.period?.errorMessage}
         hasError={errors.period?.hasError}
         {...getOverrideProps(overrides, "period")}
+      ></TextField>
+      <TextField
+        label="Division"
+        isRequired={true}
+        isReadOnly={false}
+        type="number"
+        step="any"
+        value={division}
+        onChange={(e) => {
+          let value = isNaN(parseInt(e.target.value))
+            ? e.target.value
+            : parseInt(e.target.value);
+          if (onChange) {
+            const modelFields = {
+              period,
+              division: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.division ?? value;
+          }
+          if (errors.division?.hasError) {
+            runValidationTasks("division", value);
+          }
+          setDivision(value);
+        }}
+        onBlur={() => runValidationTasks("division", division)}
+        errorMessage={errors.division?.errorMessage}
+        hasError={errors.division?.hasError}
+        {...getOverrideProps(overrides, "division")}
       ></TextField>
       <Flex
         justifyContent="space-between"

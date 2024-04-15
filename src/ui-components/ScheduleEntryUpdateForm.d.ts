@@ -22,24 +22,18 @@ export declare type ValidationResponse = {
 };
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
 export declare type ScheduleEntryUpdateFormInputValues = {
-    date?: string;
-    activityIds?: string[];
-    division?: number;
     period?: number;
+    division?: number;
 };
 export declare type ScheduleEntryUpdateFormValidationValues = {
-    date?: ValidationFunction<string>;
-    activityIds?: ValidationFunction<string>;
-    division?: ValidationFunction<number>;
     period?: ValidationFunction<number>;
+    division?: ValidationFunction<number>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type ScheduleEntryUpdateFormOverridesProps = {
     ScheduleEntryUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
-    date?: PrimitiveOverrideProps<TextFieldProps>;
-    activityIds?: PrimitiveOverrideProps<TextFieldProps>;
-    division?: PrimitiveOverrideProps<TextFieldProps>;
     period?: PrimitiveOverrideProps<TextFieldProps>;
+    division?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type ScheduleEntryUpdateFormProps = React.PropsWithChildren<{
     overrides?: ScheduleEntryUpdateFormOverridesProps | undefined | null;

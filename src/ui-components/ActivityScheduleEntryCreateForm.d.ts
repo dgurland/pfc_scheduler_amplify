@@ -21,28 +21,25 @@ export declare type ValidationResponse = {
     errorMessage?: string;
 };
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
-export declare type ScheduleEntryCreateFormInputValues = {
-    period?: number;
-    division?: number;
+export declare type ActivityScheduleEntryCreateFormInputValues = {
+    label?: string;
 };
-export declare type ScheduleEntryCreateFormValidationValues = {
-    period?: ValidationFunction<number>;
-    division?: ValidationFunction<number>;
+export declare type ActivityScheduleEntryCreateFormValidationValues = {
+    label?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
-export declare type ScheduleEntryCreateFormOverridesProps = {
-    ScheduleEntryCreateFormGrid?: PrimitiveOverrideProps<GridProps>;
-    period?: PrimitiveOverrideProps<TextFieldProps>;
-    division?: PrimitiveOverrideProps<TextFieldProps>;
+export declare type ActivityScheduleEntryCreateFormOverridesProps = {
+    ActivityScheduleEntryCreateFormGrid?: PrimitiveOverrideProps<GridProps>;
+    label?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
-export declare type ScheduleEntryCreateFormProps = React.PropsWithChildren<{
-    overrides?: ScheduleEntryCreateFormOverridesProps | undefined | null;
+export declare type ActivityScheduleEntryCreateFormProps = React.PropsWithChildren<{
+    overrides?: ActivityScheduleEntryCreateFormOverridesProps | undefined | null;
 } & {
     clearOnSuccess?: boolean;
-    onSubmit?: (fields: ScheduleEntryCreateFormInputValues) => ScheduleEntryCreateFormInputValues;
-    onSuccess?: (fields: ScheduleEntryCreateFormInputValues) => void;
-    onError?: (fields: ScheduleEntryCreateFormInputValues, errorMessage: string) => void;
-    onChange?: (fields: ScheduleEntryCreateFormInputValues) => ScheduleEntryCreateFormInputValues;
-    onValidate?: ScheduleEntryCreateFormValidationValues;
+    onSubmit?: (fields: ActivityScheduleEntryCreateFormInputValues) => ActivityScheduleEntryCreateFormInputValues;
+    onSuccess?: (fields: ActivityScheduleEntryCreateFormInputValues) => void;
+    onError?: (fields: ActivityScheduleEntryCreateFormInputValues, errorMessage: string) => void;
+    onChange?: (fields: ActivityScheduleEntryCreateFormInputValues) => ActivityScheduleEntryCreateFormInputValues;
+    onValidate?: ActivityScheduleEntryCreateFormValidationValues;
 } & React.CSSProperties>;
-export default function ScheduleEntryCreateForm(props: ScheduleEntryCreateFormProps): React.ReactElement;
+export default function ActivityScheduleEntryCreateForm(props: ActivityScheduleEntryCreateFormProps): React.ReactElement;

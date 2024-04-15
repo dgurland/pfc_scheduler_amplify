@@ -82,3 +82,37 @@ export const listSchedules = /* GraphQL */ `
     }
   }
 `;
+
+export const getSchedule = /* GraphQL */ `
+  query GetSchedule($id: ID!) {
+    getSchedule(id: $id) {
+      id
+      date
+      periods
+      entries {
+        items {
+          id
+          period
+          division
+          activities {
+            items {
+              id
+              label
+              activity {
+                name
+                id
+                facilityId
+                usage
+              }
+            }
+          }
+        }
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
