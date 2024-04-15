@@ -20,7 +20,6 @@ import {
 import {
   createScheduleEntry as createScheduleEntryMutation
 } from "../../graphql/custom-mutations";
-import { listSchedules } from "../../graphql/custom-queries";
 
 type GetStartedProps = {
   setSchedule: React.Dispatch<SetStateAction<Schedule | null>>,

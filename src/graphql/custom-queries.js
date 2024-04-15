@@ -69,6 +69,7 @@ export const listSchedules = /* GraphQL */ `
               items {
                 activity {
                   id
+                  name
                 }
                 label
               }

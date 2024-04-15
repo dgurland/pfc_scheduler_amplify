@@ -14,11 +14,16 @@ import ScheduleEditLayout from "./templates/ScheduleEdit/ScheduleEditLayout";
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
 import { AppBar, Box, Button, Toolbar } from "@mui/material";
 import ScheduleDisplay from "./templates/ScheduleDisplay";
-
+import { Schedule } from "./types";
+import { listSchedules } from "./graphql/custom-queries";
+import { generateClient } from "aws-amplify/api";
+import dayjs from "dayjs";
 
 const App = ({ signOut }) => {
 
   const [userAttributes, setUserAttributes] = useState<FetchUserAttributesOutput>({});
+  const [allSchedules, setAllSchedules] = useState<Schedule[]>([]);
+  const API = generateClient({ authMode: 'apiKey' });
 
   async function handleFetchUserAttributes() {
     try {
@@ -32,7 +37,15 @@ const App = ({ signOut }) => {
 
   useEffect(() => {
     handleFetchUserAttributes();
+    getExistingSchedules();
   }, [])
+  
+  async function getExistingSchedules() {
+    const apiData = await API.graphql({ query: listSchedules });
+    const schedulesFromAPI = apiData.data.listSchedules.items;
+    const sortedSchedules = schedulesFromAPI.filter((a) => dayjs().isSame(dayjs(a.date, "MM/DD/YYYY"), "day") || dayjs().isBefore(dayjs(a.date, "MM/DD/YYYY"))).sort((a, b) => dayjs(a, "MM/DD/YYYY").isAfter(dayjs(b, "MM/DD/YYYY") ? 1 : -1));
+    setAllSchedules(sortedSchedules);
+  }
 
   const routes = [
     {
@@ -40,19 +53,26 @@ const App = ({ signOut }) => {
       element: <ActivityFacility />,
       name: "Activities and Facilities",
       enabled: (userAttributes['custom:authLevel'] ?? '') == 'admin',
-      order: 2
+      order: 3
     },
     {
       path: "/schedule-edit",
       element: <ScheduleEditLayout />,
       name: "Edit Schedules",
       enabled: (userAttributes['custom:authLevel'] ?? ''),
+      order: 2
+    },
+    {
+      path: "/upcoming",
+      name: "Upcoming Schedule",
+      element: <ScheduleDisplay schedule={allSchedules.length > 1 ? allSchedules[1] : {}} />,
+      enabled: true,
       order: 1
     },
     {
       path: "/",
       name: "Home",
-      element: <ScheduleDisplay date="04/14/2024" />,
+      element: <ScheduleDisplay schedule={allSchedules[0]} />,
       enabled: true,
       order: 0
     },

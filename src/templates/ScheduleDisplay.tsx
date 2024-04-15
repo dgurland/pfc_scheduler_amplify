@@ -11,13 +11,13 @@ import {
   View,
   Heading
 } from "@aws-amplify/ui-react";
-import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry } from "../types";
+import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule } from "../types";
 import { organizeTableEntries } from "../common/helpers";
 import { listScheduleEntriesWithActivityNames } from "../graphql/custom-queries";
 import dayjs from "dayjs";
 
 type ScheduleDisplayProps = {
-  date: string;
+  schedule?: Schedule;
 }
 
 const ScheduleDisplay = (props: ScheduleDisplayProps) => {
@@ -26,15 +26,8 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
   const API = generateClient({ authMode: 'apiKey' });
 
   useEffect(() => {
-    fetchScheduleEntries();
-  }, []);
-
-  async function fetchScheduleEntries() {
-    const apiData = await API.graphql({ query: listScheduleEntriesWithActivityNames, variables: { filter: { scheduleEntriesId: { eq: "e00c74d4-ed44-41b4-9ec4-285bae9b4542" } } } });
-    const scheduleFromAPI = apiData.data.listScheduleEntries.items;
-    const sortedSchedule = organizeTableEntries(scheduleFromAPI);
-    setScheduleEntries(sortedSchedule);
-  }
+    setScheduleEntries(organizeTableEntries(props.schedule?.entries?.items));
+  }, [props.schedule]);
 
   const tableRows = (): ScheduleEntry[][] => {
     let row: ScheduleEntry[][] = []
@@ -61,10 +54,16 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
     return row;
   }
 
+  if (!props.schedule) {
+    return (
+      <div>No upcoming schedules to show</div>
+    )
+  }
+
   return (
     <View>
       <div className="m-4 font-bold text-xl">
-        {dayjs().isSame(dayjs(props.date, "MM/DD/YYYY"), 'day') ? <span>Today's Schedule</span> : <span>Schedule For {props.date}</span>}
+        {dayjs().isSame(dayjs(props.schedule?.date, "MM/DD/YYYY"), 'day') ? <span>Today's Schedule</span> : <span>Schedule For {props.schedule?.date}</span>}
       </div>
       <Table>
         <TableHead>
