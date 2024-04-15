@@ -10,6 +10,9 @@ import { Dayjs } from "dayjs";
 import { organizeTableEntries } from "../../common/helpers";
 import GetStarted from "./GetStarted";
 import Editor from "./Editor";
+import {
+  deleteSchedule as deleteScheduleMutation
+} from "../../graphql/mutations";
 
 const ScheduleEditLayout = () => {
   const [facilities, setFacilities] = useState([]);
@@ -26,7 +29,12 @@ const ScheduleEditLayout = () => {
   useEffect(() => {
     fetchFacilities();
     fetchActivities();
-    fetchExistingSchedules();
+    if (!schedule) {
+      resetWorkspace().then(() => fetchExistingSchedules())
+    }
+    else {
+      fetchExistingSchedules();
+    }
     // API.graphql({ query: getSchedule, variables: {id: 'cfe7afe4-d917-43b9-ae6e-42949d62ccf5'}}).then((result) => {
     //   setSchedule(result.data.getSchedule)
     // }) //TODO: remove this (temp for testing)
@@ -38,6 +46,22 @@ const ScheduleEditLayout = () => {
       setScheduleEntries(sortedSchedule);
     }
   }, [schedule])
+
+  async function resetWorkspace() {
+    const data = await API.graphql({ query: listSchedules, variables: { filter: { date: { eq: "WORKING" } } } })
+    if (!((data?.data?.listSchedules?.items ?? []).length > 0)) {
+      return;
+    }
+    const workingSchedule = data.data.listSchedules.items[0];
+    return await API.graphql({
+      query: deleteScheduleMutation,
+      variables: {
+        input: {
+          id: workingSchedule.id
+        },
+      },
+    });
+  }
 
   async function afterActivitySubmit() {
     API.graphql({ query: getSchedule, variables: {id: 'cfe7afe4-d917-43b9-ae6e-42949d62ccf5'}}).then((result) => {

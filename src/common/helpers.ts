@@ -1,6 +1,9 @@
 import { ScheduleEntry } from "../types";
 
 const organizeTableEntries = (scheduleFromAPI: ScheduleEntry[]) => {
+  if (!scheduleFromAPI) {
+    return []
+  }
   let sortedSchedule: ScheduleEntry[][] = scheduleFromAPI?.reduce((accumulator: ScheduleEntry[][], currentValue: ScheduleEntry) => {
     const period = currentValue.period;
     if (accumulator[period]) {

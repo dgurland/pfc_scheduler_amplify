@@ -37,11 +37,9 @@ const ActivitySelect = (props: ActivityProps) => {
 		if (!scheduleEntry?.id) {
 			const result = await createScheduleEntry(period, division);
 			scheduleEntryForSubmit = result.data.createScheduleEntry;
-			console.log(scheduleEntry)
 		}
 		else if (scheduleEntry.activities?.items?.length) {
 			await Promise.all(scheduleEntry.activities.items.map((existingRelation) => {
-				console.log(existingRelation)
 				return deleteRelation(existingRelation.id);
 			}))
 		}

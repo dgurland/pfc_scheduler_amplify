@@ -15,11 +15,12 @@ import "../../App.css";
 import { Dayjs } from "dayjs";
 import {
   createSchedule as createScheduleMutation,
-  createActivityScheduleEntry as createActivityScheduleEntryMutation
+  createActivityScheduleEntry as createActivityScheduleEntryMutation,
 } from "../../graphql/mutations";
 import {
   createScheduleEntry as createScheduleEntryMutation
-} from "../../graphql/custom-mutations"
+} from "../../graphql/custom-mutations";
+import { listSchedules } from "../../graphql/custom-queries";
 
 type GetStartedProps = {
   setSchedule: React.Dispatch<SetStateAction<Schedule | null>>,
