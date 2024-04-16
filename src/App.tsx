@@ -12,17 +12,19 @@ import {
 import ActivityFacility from "./templates/ActivityFacility";
 import ScheduleEditLayout from "./templates/ScheduleEdit/ScheduleEditLayout";
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
-import { AppBar, Box, Button, Toolbar } from "@mui/material";
+import { AppBar, Box, Button, Drawer, Toolbar } from "@mui/material";
 import ScheduleDisplay from "./templates/ScheduleDisplay";
 import { Schedule } from "./types";
 import { listSchedules } from "./graphql/custom-queries";
 import { generateClient } from "aws-amplify/api";
 import dayjs from "dayjs";
+import MenuIcon from '@mui/icons-material/Menu';
 
 const App = ({ signOut }) => {
 
   const [userAttributes, setUserAttributes] = useState<FetchUserAttributesOutput>({});
   const [allSchedules, setAllSchedules] = useState<Schedule[]>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const API = generateClient({ authMode: 'apiKey' });
 
   async function handleFetchUserAttributes() {
@@ -39,7 +41,7 @@ const App = ({ signOut }) => {
     handleFetchUserAttributes();
     getExistingSchedules();
   }, [])
-  
+
   async function getExistingSchedules() {
     const apiData = await API.graphql({ query: listSchedules });
     const schedulesFromAPI = apiData.data.listSchedules.items;
@@ -72,7 +74,7 @@ const App = ({ signOut }) => {
     {
       path: "/",
       name: "Home",
-      element: <ScheduleDisplay schedule={allSchedules[0]} />,
+      element: <span>Hey</span>,//<ScheduleDisplay schedule={allSchedules[0]} />,
       enabled: true,
       order: 0
     },
@@ -84,21 +86,39 @@ const App = ({ signOut }) => {
       <div className="bg-blue text-white w-full">
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="static">
-            <Toolbar className="flex gap-4">
-              {routes.sort((a, b) => a.order - b.order).map((route) => {
-                if (route.enabled) {
-                  return (
-                    <a href={route.path} className="text-white hover:underline">
-                      {route.name}
-                    </a>
-                  )
-                }
-              })}
+            <Toolbar className="flex">
+              <button className="lg:hidden" onClick={() => setMobileMenuOpen(true)}>
+                <MenuIcon />
+              </button>
+              <span className="hidden lg:flex gap-4">
+                {routes.sort((a, b) => a.order - b.order).map((route) => {
+                  if (route.enabled) {
+                    return (
+                      <a href={route.path} className="text-white hover:underline">
+                        {route.name}
+                      </a>
+                    )
+                  }
+                })}
+              </span>
               <div className="ml-auto flex gap-4 items-center">
                 <span className="text-white">Welcome <span className="font-bold">{userAttributes['name'] ?? userAttributes['username']}</span></span>
                 <Button className="text-white" onClick={signOut} color='inherit' variant='outlined'>Sign Out</Button>
               </div>
             </Toolbar>
+            <Drawer open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
+              <div className="flex flex-col gap-4 p-4">
+                {routes.sort((a, b) => a.order - b.order).map((route) => {
+                if (route.enabled) {
+                  return (
+                    <a href={route.path} className="text-black hover:underline">
+                      {route.name}
+                    </a>
+                  )
+                }
+              })}
+              </div>
+            </Drawer>
           </AppBar>
         </Box>
       </div>
