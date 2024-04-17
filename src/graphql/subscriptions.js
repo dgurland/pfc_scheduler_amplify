@@ -334,3 +334,48 @@ export const onDeleteActivityScheduleEntry = /* GraphQL */ `
     }
   }
 `;
+export const onCreateCalendarEvent = /* GraphQL */ `
+  subscription OnCreateCalendarEvent(
+    $filter: ModelSubscriptionCalendarEventFilterInput
+  ) {
+    onCreateCalendarEvent(filter: $filter) {
+      id
+      date
+      title
+      category
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateCalendarEvent = /* GraphQL */ `
+  subscription OnUpdateCalendarEvent(
+    $filter: ModelSubscriptionCalendarEventFilterInput
+  ) {
+    onUpdateCalendarEvent(filter: $filter) {
+      id
+      date
+      title
+      category
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteCalendarEvent = /* GraphQL */ `
+  subscription OnDeleteCalendarEvent(
+    $filter: ModelSubscriptionCalendarEventFilterInput
+  ) {
+    onDeleteCalendarEvent(filter: $filter) {
+      id
+      date
+      title
+      category
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;

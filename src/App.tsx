@@ -19,6 +19,7 @@ import { listSchedules } from "./graphql/custom-queries";
 import { generateClient } from "aws-amplify/api";
 import dayjs from "dayjs";
 import MenuIcon from '@mui/icons-material/Menu';
+import Calendar from "./templates/Calendar";
 
 const App = ({ signOut }) => {
 
@@ -72,9 +73,16 @@ const App = ({ signOut }) => {
       order: 1
     },
     {
+      path: "/calendar",
+      name: "Summer Calendar",
+      element: <Calendar />,
+      enabled: true,
+      order: 4
+    },
+    {
       path: "/",
       name: "Home",
-      element: <span>Hey</span>,//<ScheduleDisplay schedule={allSchedules[0]} />,
+      element: <ScheduleDisplay schedule={allSchedules[0]} />,
       enabled: true,
       order: 0
     },

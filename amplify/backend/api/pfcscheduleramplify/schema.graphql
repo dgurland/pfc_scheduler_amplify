@@ -33,3 +33,10 @@ type ActivityScheduleEntry @model @auth(rules: [{allow: public}]) {
   scheduleEntry: ScheduleEntry @belongsTo
   label: String
 }
+
+type CalendarEvent @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  date: String!
+  title: String!
+  category: Int
+}

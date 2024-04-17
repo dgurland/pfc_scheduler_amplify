@@ -8,6 +8,8 @@ export { default as ActivityCreateForm } from "./ActivityCreateForm";
 export { default as ActivityScheduleEntryCreateForm } from "./ActivityScheduleEntryCreateForm";
 export { default as ActivityScheduleEntryUpdateForm } from "./ActivityScheduleEntryUpdateForm";
 export { default as ActivityUpdateForm } from "./ActivityUpdateForm";
+export { default as CalendarEventCreateForm } from "./CalendarEventCreateForm";
+export { default as CalendarEventUpdateForm } from "./CalendarEventUpdateForm";
 export { default as FacilityCreateForm } from "./FacilityCreateForm";
 export { default as FacilityUpdateForm } from "./FacilityUpdateForm";
 export { default as ScheduleCreateForm } from "./ScheduleCreateForm";
