@@ -20,6 +20,7 @@ import { generateClient } from "aws-amplify/api";
 import dayjs from "dayjs";
 import MenuIcon from '@mui/icons-material/Menu';
 import Calendar from "./templates/Calendar";
+import GoogleForms from "./templates/GoogleForms";
 
 const App = ({ signOut }) => {
 
@@ -78,6 +79,13 @@ const App = ({ signOut }) => {
       element: <Calendar />,
       enabled: true,
       order: 4
+    },
+    {
+      path: "/forms",
+      element: <GoogleForms />,
+      name: "Maintenace Request",
+      enabled: true,
+      order: 5
     },
     {
       path: "/",
