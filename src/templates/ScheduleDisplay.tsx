@@ -13,8 +13,9 @@ import {
 } from "@aws-amplify/ui-react";
 import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule } from "../types";
 import { organizeTableEntries } from "../common/helpers";
-import { listScheduleEntriesWithActivityNames } from "../graphql/custom-queries";
+import { MenuItem, Select } from "@mui/material";
 import dayjs from "dayjs";
+import classNames from "classnames";
 
 type ScheduleDisplayProps = {
   schedule?: Schedule;
@@ -24,6 +25,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
   const [scheduleEntriesByPeriod, setScheduleEntries] = useState<ScheduleEntry[][]>([]);
   const numPeriods = 6;
   const API = generateClient({ authMode: 'apiKey' });
+  const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS | undefined>(DIVISIONS.JRG);
 
   useEffect(() => {
     setScheduleEntries(organizeTableEntries(props.schedule?.entries?.items));
@@ -61,60 +63,58 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
   }
 
   return (
-    <View>
+    <div>
+      <div className="sm:hidden w-full my-2 px-4 container">
+        <Select value={divisionForMobile}
+          onChange={(event) => setDivisionForMobile(event?.target.value as DIVISIONS)}
+          classes={{
+            root: "w-full"
+          }}
+        >
+          {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
+            return (
+              <MenuItem value={DIVISIONS[divisionKey]} key={divisionKey}>{divisionKey}</MenuItem>
+            )
+          })}
+          <MenuItem value={undefined} key={"all"}>Show all</MenuItem>
+        </Select>
+      </div>
       <div className="m-4 font-bold text-xl">
         {dayjs().isSame(dayjs(props.schedule?.date, "MM/DD/YYYY"), 'day') ? <span>Today's Schedule</span> : <span>Schedule For {props.schedule?.date}</span>}
       </div>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>
-              Jr Girls
-            </TableCell>
-            <TableCell>
-              Int Girls
-            </TableCell>
-            <TableCell>
-              Sr Girls
-            </TableCell>
-            <TableCell>
-              HS Girls
-            </TableCell>
-            <TableCell>
-              Jr Boys
-            </TableCell>
-            <TableCell>
-              Int Boys
-            </TableCell>
-            <TableCell>
-              Sr Boys
-            </TableCell>
-            <TableCell>
-              HS Boys
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {tableRows().map((row: ScheduleEntry[], i) => {
-            return (
-              <TableRow key={i}>
-                <TableCell key={`period-${i}`}>
-                  Period {i + 1}
-                </TableCell>
-                {row.map((entry: ScheduleEntry, j) => {
-                  return (
-                    <TableCell key={`${i}-${j}`}>
-                      {entry.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`).join(', ')}
-                    </TableCell>
-                  )
-                })}
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
-    </View>
+      <div className="overflow-x-auto w-full">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
+                return (
+                  <TableCell key={divisionKey} className={classNames("sm:flex", { "!hidden": divisionForMobile && divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
+                )
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tableRows().map((row: ScheduleEntry[], i) => {
+              return (
+                <TableRow key={i}>
+                  <TableCell key={`period-${i}`} className="!left-0 !sticky !bg-white">
+                    Period {i + 1}
+                  </TableCell>
+                  {row.map((entry: ScheduleEntry, j) => {
+                    return (
+                      <TableCell key={`${i}-${j}`} className={classNames("sm:flex", { "!hidden": divisionForMobile && divisionForMobile !== j })}>
+                        {entry.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`).join(', ')}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 };
 
