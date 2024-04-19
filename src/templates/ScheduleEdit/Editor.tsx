@@ -24,7 +24,7 @@ import {
 } from "../../graphql/custom-mutations"
 import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule, CREATE_UPDATE } from "../../types";
 import ActivitySelect from "../../common/components/ActivitySelect";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { Button } from "@mui/material";
 
 type EditorProps = {
@@ -43,7 +43,13 @@ type EditorProps = {
 const Editor = (props: EditorProps) => {
   const { scheduleEntriesByPeriod, activities, numPeriods, scheduleId, date, editingType, schedules, previousScheduleId, resetEditor } = props;
   const API = generateClient({ authMode: 'apiKey' });
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [tableData, setTableData] = useState<ScheduleEntry[][]>()
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(date ? dayjs(date, "MM/DD/YYYY") : null);
+
+  useEffect(() => {
+    setTableData(tableRows());
+    console.log('fired1', tableData, scheduleEntriesByPeriod)
+  }, [scheduleEntriesByPeriod])
 
   function facilityUsageForPeriod(period) {
     const entries: ScheduleEntry[] = scheduleEntriesByPeriod[period] ?? [];
@@ -172,7 +178,7 @@ const Editor = (props: EditorProps) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {tableRows().map((row: ScheduleEntry[], i) => {
+          {tableData?.map((row: ScheduleEntry[], i) => {
             return (
               <TableRow key={i}>
                 <TableCell key={`period-${i}`}>

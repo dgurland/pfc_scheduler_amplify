@@ -20,17 +20,21 @@ import {
 import {
   createScheduleEntry as createScheduleEntryMutation
 } from "../../graphql/custom-mutations";
+import { getSchedule } from "../../graphql/custom-queries";
 
 type GetStartedProps = {
   setSchedule: React.Dispatch<SetStateAction<Schedule | null>>,
   schedules: Schedule[];
-  setPreviousScheduleId: React.Dispatch<SetStateAction<string>>
+  setPreviousScheduleId: React.Dispatch<SetStateAction<string>>,
+  createEdit: CREATE_UPDATE,
+  setCreateEdit: React.Dispatch<SetStateAction<CREATE_UPDATE>>,
+  date: Dayjs | null,
+  setDate: React.Dispatch<SetStateAction<Dayjs | null>>
 }
 
 const GetStarted = (props: GetStartedProps) => {
+  const { createEdit, setCreateEdit, date, setDate } = props;
   const { schedules, setPreviousScheduleId } = props;
-  const [createEdit, setCreateOrEdit] = useState<CREATE_UPDATE>(CREATE_UPDATE.CREATE);
-  const [date, setDate] = useState<Dayjs | null>(null);
   const [templateId, setTemplateId] = useState<string>('');
   const [period, setPeriod] = useState(-1);
   const [submitEnabled, setSubmitEnabled] = useState(false);
@@ -52,7 +56,7 @@ const GetStarted = (props: GetStartedProps) => {
       existingSchedule = schedules.find((schedule) => date ? schedule.date == date.format('MM/DD/YYYY') : schedule.id == templateId)
       data.periods = existingSchedule?.periods ?? 6;
     }
-    const schedule = await API.graphql({
+    let schedule = await API.graphql({
       query: createScheduleMutation,
       variables: { input: data },
     });
@@ -79,7 +83,11 @@ const GetStarted = (props: GetStartedProps) => {
     if (existingSchedule && createEdit == CREATE_UPDATE.EDIT) {
       setPreviousScheduleId(existingSchedule.id);
     }
-
+    schedule = await API.graphql({
+      query: getSchedule,
+      variables: { id: schedule.data.createSchedule.id },
+    });
+    console.log(schedule)
     return schedule;
   }
 
@@ -109,7 +117,7 @@ const GetStarted = (props: GetStartedProps) => {
 
   const handleGetStarted = () => {
     createSchedule().then((value) => {
-      props.setSchedule(value.data.createSchedule)
+      props.setSchedule(value.data.getSchedule)
     })
   }
 
@@ -133,7 +141,7 @@ const GetStarted = (props: GetStartedProps) => {
     <div className="m-4">
       <Heading level={3}>Get Started</Heading>
       <Flex direction="column" justifyContent="center">
-        <RadioGroup value={createEdit} name="createEdit" onChange={(event) => setCreateOrEdit(event?.target.value as CREATE_UPDATE)}>
+        <RadioGroup value={createEdit} name="createEdit" onChange={(event) => setCreateEdit(event?.target.value as CREATE_UPDATE)}>
           <FormControlLabel value={CREATE_UPDATE.CREATE} control={<Radio />} label="Create New Schedule" />
           <FormControlLabel value={CREATE_UPDATE.TEMPLATE} control={<Radio />} label="Start from a Template" />
           <FormControlLabel value={CREATE_UPDATE.EDIT} control={<Radio />} label="Edit Existing" />

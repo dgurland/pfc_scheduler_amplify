@@ -64,9 +64,9 @@ const ScheduleEditLayout = () => {
   }
 
   async function afterActivitySubmit() {
-    API.graphql({ query: getSchedule, variables: {id: 'cfe7afe4-d917-43b9-ae6e-42949d62ccf5'}}).then((result) => {
+    API.graphql({ query: getSchedule, variables: {id: schedule?.id}}).then((result) => {
       setSchedule(result.data.getSchedule)
-    }) //TODO: remove this (temp for testing)
+    })
   }
 
   async function fetchExistingSchedules() {
@@ -85,10 +85,6 @@ const ScheduleEditLayout = () => {
     const apiData = await API.graphql({ query: listActivitiesWithFacilityData });
     const activitiesFromAPI = apiData.data.listActivities.items;
     setActivities(activitiesFromAPI);
-  }
-
-  const disableGetStarted = () => {
-    
   }
 
   async function resetEditor() {
@@ -111,7 +107,15 @@ const ScheduleEditLayout = () => {
           resetEditor={resetEditor}
           />
         :
-        <GetStarted setSchedule={setSchedule} schedules={schedules} setPreviousScheduleId={setPreviousScheduleId} />
+        <GetStarted
+          setSchedule={setSchedule}
+          schedules={schedules}
+          setPreviousScheduleId={setPreviousScheduleId}
+          createEdit={createEdit}
+          setCreateEdit={setCreateOrEdit}
+          date={date}
+          setDate={setDate}
+        />
       }
     </>
   );
