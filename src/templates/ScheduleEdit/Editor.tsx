@@ -48,7 +48,6 @@ const Editor = (props: EditorProps) => {
 
   useEffect(() => {
     setTableData(tableRows());
-    console.log('fired1', tableData, scheduleEntriesByPeriod)
   }, [scheduleEntriesByPeriod])
 
   function facilityUsageForPeriod(period) {

@@ -19,17 +19,22 @@ import classNames from "classnames";
 
 type ScheduleDisplayProps = {
   schedule?: Schedule;
+  defaultDivision?: DIVISIONS;
 }
 
 const ScheduleDisplay = (props: ScheduleDisplayProps) => {
+  const { defaultDivision } = props;
   const [scheduleEntriesByPeriod, setScheduleEntries] = useState<ScheduleEntry[][]>([]);
   const numPeriods = 6;
   const API = generateClient({ authMode: 'apiKey' });
-  const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS | undefined>(DIVISIONS.JRG);
-
+  const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS | undefined>(defaultDivision ?? DIVISIONS.JRG);
   useEffect(() => {
     setScheduleEntries(organizeTableEntries(props.schedule?.entries?.items));
   }, [props.schedule]);
+
+  useEffect(() => {
+    setDivisionForMobile(defaultDivision);
+  }, [defaultDivision]);
 
   const tableRows = (): ScheduleEntry[][] => {
     let row: ScheduleEntry[][] = []

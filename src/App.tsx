@@ -14,7 +14,7 @@ import ScheduleEditLayout from "./templates/ScheduleEdit/ScheduleEditLayout";
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
 import { AppBar, Box, Button, Drawer, Toolbar } from "@mui/material";
 import ScheduleDisplay from "./templates/ScheduleDisplay";
-import { Schedule } from "./types";
+import { DIVISIONS, Schedule } from "./types";
 import { listSchedules } from "./graphql/custom-queries";
 import { generateClient } from "aws-amplify/api";
 import dayjs from "dayjs";
@@ -69,7 +69,7 @@ const App = ({ signOut }) => {
     {
       path: "/upcoming",
       name: "Upcoming Schedule",
-      element: <ScheduleDisplay schedule={allSchedules.length > 1 ? allSchedules[1] : {}} />,
+      element: <ScheduleDisplay schedule={allSchedules.length > 1 ? allSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined}/>,
       enabled: true,
       order: 1
     },
@@ -90,7 +90,7 @@ const App = ({ signOut }) => {
     {
       path: "/",
       name: "Home",
-      element: <ScheduleDisplay schedule={allSchedules[0]} />,
+      element: <ScheduleDisplay schedule={allSchedules[0]}  defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined}/>,
       enabled: true,
       order: 0
     },

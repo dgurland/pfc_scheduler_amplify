@@ -87,7 +87,6 @@ const GetStarted = (props: GetStartedProps) => {
       query: getSchedule,
       variables: { id: schedule.data.createSchedule.id },
     });
-    console.log(schedule)
     return schedule;
   }
 
