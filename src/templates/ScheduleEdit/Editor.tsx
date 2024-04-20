@@ -5,6 +5,7 @@ import { generateClient } from 'aws-amplify/api';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import "../../App.css";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import {
   Table,
   TableRow,
@@ -89,7 +90,7 @@ const Editor = (props: EditorProps) => {
   }
 
   async function onSubmit() {
-    if (editingType == CREATE_UPDATE.EDIT && previousScheduleId) {
+    if ((editingType == CREATE_UPDATE.EDIT || scheduleId.includes("WORKING_edit")) && previousScheduleId) {
       //delete old entries
       await deleteOldSchedule(previousScheduleId)
 
@@ -122,30 +123,32 @@ const Editor = (props: EditorProps) => {
   }
 
   const tableRows = (): ScheduleEntry[][] => {
-    let row: ScheduleEntry[][] = []
+    let rows: ScheduleEntry[][] = []
+    const divisions = Object.keys(DIVISIONS).filter((key) => isNaN(Number(key)));
     for (let i = 0; i < numPeriods; i++) {
-      row[i] = [];
+      const row = [];
       const dataForPeriod: ScheduleEntry[] = scheduleEntriesByPeriod[i] ?? [];
-      Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).forEach((divisionKey) => {
-        const d = DIVISIONS[divisionKey]
-        if (dataForPeriod[d]?.division == d) {
-          row[i].push(dataForPeriod[d]);
+      for (let j = 0; j < divisions.length; j++) {
+        let divisionData = dataForPeriod.find((dataEntry) => dataEntry.division == j);
+        if (divisionData) {
+          row[j] = divisionData;
         } else {
-          const dummyEntry: ScheduleEntry = {
-            date: "",
+          row[j] = {
             id: "",
             activities: [],
             period: i,
-            division: d
-          }
-          row[i].push(dummyEntry)
+            division: j
+          };
         }
-      })
+      }
+      rows.push(row)
     }
-    return row;
+    return rows;
   }
+
   return (
     <View>
+      <Button onClick={() => resetEditor(false)}><ArrowBackIosIcon />Go Back</Button>
       <Table>
         <TableHead>
           <TableRow>
@@ -201,7 +204,7 @@ const Editor = (props: EditorProps) => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker label="Date" name="date" value={selectedDate} onChange={(d) => setSelectedDate(d)} disabled={editingType == CREATE_UPDATE.EDIT} disablePast shouldDisableDate={disableDate} />
           </LocalizationProvider>
-          <Button variant="contained" onClick={() => onSubmit()}>
+          <Button variant="contained" onClick={() => onSubmit()} disabled={!selectedDate}>
             Save
           </Button>
         </Flex>

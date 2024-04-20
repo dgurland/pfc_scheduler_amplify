@@ -20,7 +20,8 @@ import {
 import {
   createScheduleEntry as createScheduleEntryMutation
 } from "../../graphql/custom-mutations";
-import { getSchedule } from "../../graphql/custom-queries";
+import { getSchedule, listSchedules } from "../../graphql/custom-queries";
+
 
 type GetStartedProps = {
   setSchedule: React.Dispatch<SetStateAction<Schedule | null>>,
@@ -30,25 +31,42 @@ type GetStartedProps = {
   setCreateEdit: React.Dispatch<SetStateAction<CREATE_UPDATE>>,
   date: Dayjs | null,
   setDate: React.Dispatch<SetStateAction<Dayjs | null>>
+  resetWorkspace: Function
 }
 
 const GetStarted = (props: GetStartedProps) => {
-  const { createEdit, setCreateEdit, date, setDate } = props;
+  const { createEdit, setCreateEdit, date, setDate, resetWorkspace } = props;
   const { schedules, setPreviousScheduleId } = props;
   const [templateId, setTemplateId] = useState<string>('');
   const [period, setPeriod] = useState(-1);
   const [submitEnabled, setSubmitEnabled] = useState(false);
   const API = generateClient({ authMode: 'apiKey' });
   const periodsOptions = [2, 3, 4, 5, 6, 7, 8];
+  const [continueEditing, setContinueEditing] = useState<Schedule | null>(null);
+  const [continueEditingLabel, setContinueEditingLabel] = useState<string>("");
+
 
   useEffect(() => {
     setSubmitEnabled(isSubmitEnabled())
   }, [date, templateId, period, createEdit])
 
+  useEffect(() => {
+    const working = schedules.find((schedule) => schedule.date.includes("WORKING"))
+    if (working) {
+      setContinueEditing(working);
+      const workingData = working.date.split("_");
+      if (workingData.length == 3) {
+        const type = workingData[1] == "edit" ? "editing" : "creating previous";
+        setContinueEditingLabel(`Continue ${type} schedule ${workingData[1] == "template" ? 'from template ' : ''} ${workingData[2]}`)
+      }
+
+    }
+  }, [schedules])
+
   async function createSchedule() {
     let existingSchedule: Schedule | undefined = undefined;
     const data: Schedule = {
-      date: "WORKING",
+      date: `WORKING_${createEdit}_${createEdit == CREATE_UPDATE.EDIT ? date?.format("MM/DD/YYYY") : templateId}`,
     };
     if (createEdit == CREATE_UPDATE.CREATE) {
       data.periods = period;
@@ -114,10 +132,21 @@ const GetStarted = (props: GetStartedProps) => {
     });
   }
 
-  const handleGetStarted = () => {
-    createSchedule().then((value) => {
-      props.setSchedule(value.data.getSchedule)
-    })
+  async function handleGetStarted() {
+    if (continueEditing && createEdit !== CREATE_UPDATE.CONTINUE) {
+      if (window.confirm("This action will overwrite the schedule you were previously editing. It is recommended that you go back and save that one before continuing. Are you sure you want to continue?")) {
+        await resetWorkspace();
+        createSchedule().then((value) => {
+          props.setSchedule(value.data.getSchedule)
+        })
+      }
+    } else if (createEdit !== CREATE_UPDATE.CONTINUE) {
+      createSchedule().then((value) => {
+        props.setSchedule(value.data.getSchedule)
+      })
+    } else {
+      props.setSchedule(continueEditing)
+    }
   }
 
   const isSubmitEnabled = () => {
@@ -141,6 +170,9 @@ const GetStarted = (props: GetStartedProps) => {
       <Heading level={3}>Get Started</Heading>
       <Flex direction="column" justifyContent="center">
         <RadioGroup value={createEdit} name="createEdit" onChange={(event) => setCreateEdit(event?.target.value as CREATE_UPDATE)}>
+          {continueEditing && (
+            <FormControlLabel value={CREATE_UPDATE.CONTINUE} control={<Radio />} label={continueEditingLabel} />
+          )}
           <FormControlLabel value={CREATE_UPDATE.CREATE} control={<Radio />} label="Create New Schedule" />
           <FormControlLabel value={CREATE_UPDATE.TEMPLATE} control={<Radio />} label="Start from a Template" />
           <FormControlLabel value={CREATE_UPDATE.EDIT} control={<Radio />} label="Edit Existing" />
@@ -178,9 +210,12 @@ const GetStarted = (props: GetStartedProps) => {
             </LocalizationProvider>
           </>
         )}
-        <Button onClick={handleGetStarted} disabled={!submitEnabled} variant="contained">
-          {createEdit == CREATE_UPDATE.EDIT ? "Edit" : "Create"}
-        </Button>
+        {createEdit == CREATE_UPDATE.CONTINUE ? 
+          <Button onClick={handleGetStarted} variant="contained">Continue</Button>
+          : <Button onClick={handleGetStarted} disabled={!submitEnabled} variant="contained">
+            {createEdit == CREATE_UPDATE.EDIT ? "Edit" : "Create"}
+          </Button>
+        }
       </Flex>
     </div>
   )

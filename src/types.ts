@@ -12,7 +12,8 @@ export enum DIVISIONS {
 export enum CREATE_UPDATE {
     CREATE = "create",
     EDIT = "edit",
-    TEMPLATE = "template"
+    TEMPLATE = "template",
+    CONTINUE = "continue"
 }
 
 export enum EVENT_CATEGORY {

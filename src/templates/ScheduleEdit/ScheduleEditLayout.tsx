@@ -11,6 +11,8 @@ import { organizeTableEntries } from "../../common/helpers";
 import GetStarted from "./GetStarted";
 import Editor from "./Editor";
 import {
+  deleteActivityScheduleEntry,
+  deleteScheduleEntry,
   deleteSchedule as deleteScheduleMutation
 } from "../../graphql/mutations";
 
@@ -29,15 +31,7 @@ const ScheduleEditLayout = () => {
   useEffect(() => {
     fetchFacilities();
     fetchActivities();
-    if (!schedule) {
-      resetWorkspace().then(() => fetchExistingSchedules())
-    }
-    else {
-      fetchExistingSchedules();
-    }
-    // API.graphql({ query: getSchedule, variables: {id: 'cfe7afe4-d917-43b9-ae6e-42949d62ccf5'}}).then((result) => {
-    //   setSchedule(result.data.getSchedule)
-    // }) //TODO: remove this (temp for testing)
+    fetchExistingSchedules();
   }, []);
 
   useEffect(() => {
@@ -47,24 +41,8 @@ const ScheduleEditLayout = () => {
     }
   }, [schedule])
 
-  async function resetWorkspace() {
-    const data = await API.graphql({ query: listSchedules, variables: { filter: { date: { eq: "WORKING" } } } })
-    if (!((data?.data?.listSchedules?.items ?? []).length > 0)) {
-      return;
-    }
-    const workingSchedule = data.data.listSchedules.items[0];
-    return await API.graphql({
-      query: deleteScheduleMutation,
-      variables: {
-        input: {
-          id: workingSchedule.id
-        },
-      },
-    });
-  }
-
   async function afterActivitySubmit() {
-    API.graphql({ query: getSchedule, variables: {id: schedule?.id}}).then((result) => {
+    API.graphql({ query: getSchedule, variables: { id: schedule?.id } }).then((result) => {
       setSchedule(result.data.getSchedule)
     })
   }
@@ -87,14 +65,48 @@ const ScheduleEditLayout = () => {
     setActivities(activitiesFromAPI);
   }
 
-  async function resetEditor() {
+  async function resetEditor(shouldReset = true) {
     setSchedule(null);
+    setCreateOrEdit(CREATE_UPDATE.CREATE)
+    if (shouldReset) await resetWorkspace();
+    fetchExistingSchedules();
+  }
+
+  async function resetWorkspace() {
+    const data = await API.graphql({ query: listSchedules, variables: { filter: { date: { contains: "WORKING" } } } })
+
+    if (!((data?.data?.listSchedules?.items ?? []).length > 0)) {
+      return;
+    }
+    const workingSchedule = data.data.listSchedules.items[0];
+    await Promise.all(workingSchedule.entries?.items.map((entry) => {
+      entry.activities?.items?.map((activityRelation) => {
+        return API.graphql({
+          query: deleteActivityScheduleEntry,
+          variables: { input: { id: activityRelation.id } }
+        })
+      })
+    }))
+    await Promise.all(workingSchedule.entries?.items.map((entry) => {
+      return API.graphql({
+        query: deleteScheduleEntry,
+        variables: { input: { id: entry.id } }
+      })
+    }))
+    return await API.graphql({
+      query: deleteScheduleMutation,
+      variables: {
+        input: {
+          id: workingSchedule.id
+        },
+      },
+    });
   }
 
   return (
     <>
       {schedule ?
-        <Editor 
+        <Editor
           scheduleEntriesByPeriod={scheduleEntriesByPeriod}
           activities={activities}
           numPeriods={schedule.periods}
@@ -105,7 +117,7 @@ const ScheduleEditLayout = () => {
           schedules={schedules}
           previousScheduleId={previousScheduleId}
           resetEditor={resetEditor}
-          />
+        />
         :
         <GetStarted
           setSchedule={setSchedule}
@@ -115,6 +127,7 @@ const ScheduleEditLayout = () => {
           setCreateEdit={setCreateOrEdit}
           date={date}
           setDate={setDate}
+          resetWorkspace={resetWorkspace}
         />
       }
     </>

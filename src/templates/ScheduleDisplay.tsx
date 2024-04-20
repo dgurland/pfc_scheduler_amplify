@@ -37,28 +37,27 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
   }, [defaultDivision]);
 
   const tableRows = (): ScheduleEntry[][] => {
-    let row: ScheduleEntry[][] = []
+    let rows: ScheduleEntry[][] = []
+    const divisions = Object.keys(DIVISIONS).filter((key) => isNaN(Number(key)));
     for (let i = 0; i < numPeriods; i++) {
-      row[i] = [];
+      const row = [];
       const dataForPeriod: ScheduleEntry[] = scheduleEntriesByPeriod[i] ?? [];
-      Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).forEach((divisionKey) => {
-        const d = DIVISIONS[divisionKey]
-        if (dataForPeriod[d]?.division == d) {
-          row[i].push(dataForPeriod[d]);
+      for (let j = 0; j < divisions.length; j++) {
+        let divisionData = dataForPeriod.find((dataEntry) => dataEntry.division == j);
+        if (divisionData) {
+          row[j] = divisionData;
         } else {
-          const dummyEntry: ScheduleEntry = {
-            date: "",
+          row[j] = {
             id: "",
             activities: [],
-            activityIds: [],
             period: i,
-            division: d
-          }
-          row[i].push(dummyEntry)
+            division: j
+          };
         }
-      })
+      }
+      rows.push(row)
     }
-    return row;
+    return rows;
   }
 
   if (!props.schedule) {

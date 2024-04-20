@@ -83,6 +83,7 @@ export const listSchedules = /* GraphQL */ `
                   name
                 }
                 label
+                id
               }
             }
           }
