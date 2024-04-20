@@ -14,12 +14,12 @@ import ScheduleEditLayout from "./templates/ScheduleEdit/ScheduleEditLayout";
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
 import { AppBar, Box, Button, Drawer, Toolbar } from "@mui/material";
 import ScheduleDisplay from "./templates/ScheduleDisplay";
-import { DIVISIONS, Schedule } from "./types";
+import { DIVISIONS, Schedule, USER_TYPE } from "./types";
 import { listSchedules } from "./graphql/custom-queries";
 import { generateClient } from "aws-amplify/api";
 import dayjs from "dayjs";
 import MenuIcon from '@mui/icons-material/Menu';
-import Calendar from "./templates/Calendar";
+import Calendar from "./templates/Calendar/Calendar";
 import GoogleForms from "./templates/GoogleForms";
 
 const App = ({ signOut }) => {
@@ -33,7 +33,7 @@ const App = ({ signOut }) => {
     try {
       const ua = await fetchUserAttributes();
       // console.log(ua);
-      setUserAttributes(ua)
+      setUserAttributes(ua);
     } catch (error) {
       console.log(error);
     }
@@ -56,27 +56,27 @@ const App = ({ signOut }) => {
       path: "/activities-and-facilities",
       element: <ActivityFacility />,
       name: "Activities and Facilities",
-      enabled: (userAttributes['custom:authLevel'] ?? '') == 'admin',
+      enabled: (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN,
       order: 3
     },
     {
       path: "/schedule-edit",
       element: <ScheduleEditLayout />,
       name: "Edit Schedules",
-      enabled: (userAttributes['custom:authLevel'] ?? ''),
+      enabled: (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN,
       order: 2
     },
     {
       path: "/upcoming",
       name: "Upcoming Schedule",
-      element: <ScheduleDisplay schedule={allSchedules.length > 1 ? allSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined}/>,
-      enabled: true,
+      element: <ScheduleDisplay schedule={allSchedules.length > 1 ? allSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : 0}/>,
+      enabled: allSchedules.length > 1,
       order: 1
     },
     {
       path: "/calendar",
       name: "Summer Calendar",
-      element: <Calendar />,
+      element: <Calendar key={userAttributes['custom:authLevel']} isAdmin={(userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN} />,
       enabled: true,
       order: 4
     },

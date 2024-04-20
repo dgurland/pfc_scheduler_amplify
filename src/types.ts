@@ -15,6 +15,18 @@ export enum CREATE_UPDATE {
     TEMPLATE = "template"
 }
 
+export enum EVENT_CATEGORY {
+    OTHER,
+    PIZZA,
+    BREAKFAST,
+    OVERNIGHT
+}
+
+export enum USER_TYPE {
+    ADMIN = "admin",
+    DIVISION_LEADER = "division-leader"
+}
+
 export type Facility = {
     id: string;
     name: string;
@@ -49,4 +61,12 @@ export type Schedule = {
     id: string;
     entries: ScheduleEntry[];
     periods: number;
+}
+
+export type Event = {
+    name: string;
+    id: string;
+    date: string;
+    updatedAt: string;
+    category: number;
 }
