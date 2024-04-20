@@ -11,6 +11,17 @@ export const listActivitiesWithFacilityData = /* GraphQL */ `
         usage
         facility {
             name
+            id
+        }
+        scheduleEntries {
+          items {
+            id
+            scheduleEntry {
+              schedule {
+                date
+              }
+            }
+          }
         }
         createdAt
         updatedAt
