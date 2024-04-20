@@ -33,7 +33,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
   }, [props.schedule]);
 
   useEffect(() => {
-    setDivisionForMobile(defaultDivision);
+    setDivisionForMobile(defaultDivision != undefined ? defaultDivision : DIVISIONS.JRG);
   }, [defaultDivision]);
 
   const tableRows = (): ScheduleEntry[][] => {
@@ -93,7 +93,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
               <TableCell />
               {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
                 return (
-                  <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden":  divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
+                  <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined &&  divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
                 )
               })}
             </TableRow>
@@ -107,7 +107,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
                   </TableCell>
                   {row.map((entry: ScheduleEntry, j) => {
                     return (
-                      <TableCell key={`${i}-${j}`} className={classNames("sm:flex", { "hidden": divisionForMobile !== j })}>
+                      <TableCell key={`${i}-${j}`} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== j })}>
                         {entry.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`).join(', ')}
                       </TableCell>
                     )
