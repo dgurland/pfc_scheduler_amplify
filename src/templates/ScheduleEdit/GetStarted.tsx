@@ -12,7 +12,7 @@ import { generateClient } from 'aws-amplify/api';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import "../../App.css";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import {
   createSchedule as createScheduleMutation,
   createActivityScheduleEntry as createActivityScheduleEntryMutation,
@@ -26,7 +26,7 @@ import { getSchedule, listSchedules } from "../../graphql/custom-queries";
 type GetStartedProps = {
   setSchedule: React.Dispatch<SetStateAction<Schedule | null>>,
   schedules: Schedule[];
-  setPreviousScheduleId: React.Dispatch<SetStateAction<string>>,
+  setPreviousSchedule: React.Dispatch<SetStateAction<Schedule>>,
   createEdit: CREATE_UPDATE,
   setCreateEdit: React.Dispatch<SetStateAction<CREATE_UPDATE>>,
   date: Dayjs | null,
@@ -36,7 +36,7 @@ type GetStartedProps = {
 
 const GetStarted = (props: GetStartedProps) => {
   const { createEdit, setCreateEdit, date, setDate, resetWorkspace } = props;
-  const { schedules, setPreviousScheduleId } = props;
+  const { schedules, setPreviousSchedule } = props;
   const [templateId, setTemplateId] = useState<string>('');
   const [period, setPeriod] = useState(-1);
   const [submitEnabled, setSubmitEnabled] = useState(false);
@@ -99,7 +99,7 @@ const GetStarted = (props: GetStartedProps) => {
     }
 
     if (existingSchedule && createEdit == CREATE_UPDATE.EDIT) {
-      setPreviousScheduleId(existingSchedule.id);
+      setPreviousSchedule(existingSchedule);
     }
     schedule = await API.graphql({
       query: getSchedule,
@@ -145,6 +145,12 @@ const GetStarted = (props: GetStartedProps) => {
         props.setSchedule(value.data.getSchedule)
       })
     } else {
+      const workingDateParts = continueEditing.date.split("_")
+      if (workingDateParts.length >= 3) {
+        setDate(dayjs(workingDateParts[2]))
+        let existingSchedule = schedules.find((s) => s.date == workingDateParts[2])
+        setPreviousSchedule(existingSchedule)
+      }
       props.setSchedule(continueEditing)
     }
   }

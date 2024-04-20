@@ -20,7 +20,7 @@ const ScheduleEditLayout = () => {
   const [facilities, setFacilities] = useState([]);
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [schedule, setSchedule] = useState<Schedule | null>(null);
-  const [previousScheduleId, setPreviousScheduleId] = useState("");
+  const [previousSchedule, setPreviousSchedule] = useState("");
   const [activities, setActivities] = useState([]);
   const [scheduleEntriesByPeriod, setScheduleEntries] = useState<ScheduleEntry[][]>([]);
   const [date, setDate] = useState<Dayjs | null>(null);
@@ -115,14 +115,14 @@ const ScheduleEditLayout = () => {
           editingType={createEdit}
           date={date ?? null}
           schedules={schedules}
-          previousScheduleId={previousScheduleId}
+          previousSchedule={previousSchedule}
           resetEditor={resetEditor}
         />
         :
         <GetStarted
           setSchedule={setSchedule}
           schedules={schedules}
-          setPreviousScheduleId={setPreviousScheduleId}
+          setPreviousSchedule={setPreviousSchedule}
           createEdit={createEdit}
           setCreateEdit={setCreateOrEdit}
           date={date}

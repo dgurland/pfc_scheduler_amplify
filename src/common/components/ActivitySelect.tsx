@@ -23,11 +23,9 @@ const ActivitySelect = (props: ActivityProps) => {
 	const API = generateClient({ authMode: 'apiKey' });
 
 	useEffect(() => {
-		console.log(activities)
 		const selected = activities.filter((activity) => scheduleEntry.activities?.items?.find((item) => item.activity.id == activity.id));
 		selected.forEach((activity) => {
 			const existingEntry = scheduleEntry.activities?.items?.find((item) => item.activity.id == activity.id)
-			console.log(existingEntry)
 			if (existingEntry?.label) {
 				activity.label = existingEntry.label;
 			}

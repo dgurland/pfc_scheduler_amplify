@@ -37,12 +37,12 @@ type EditorProps = {
   editingType: CREATE_UPDATE;
   date?: Dayjs | null;
   schedules: Schedule[];
-  previousScheduleId?: string;
+  previousSchedule?: Schedule;
   resetEditor: Function;
 }
 
 const Editor = (props: EditorProps) => {
-  const { scheduleEntriesByPeriod, activities, numPeriods, scheduleId, date, editingType, schedules, previousScheduleId, resetEditor } = props;
+  const { scheduleEntriesByPeriod, activities, numPeriods, scheduleId, date, editingType, schedules, previousSchedule, resetEditor } = props;
   const API = generateClient({ authMode: 'apiKey' });
   const [tableData, setTableData] = useState<ScheduleEntry[][]>()
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(date ? dayjs(date, "MM/DD/YYYY") : null);
@@ -90,9 +90,9 @@ const Editor = (props: EditorProps) => {
   }
 
   async function onSubmit() {
-    if ((editingType == CREATE_UPDATE.EDIT || scheduleId.includes("WORKING_edit")) && previousScheduleId) {
+    if ((editingType == CREATE_UPDATE.EDIT && previousSchedule?.id) || previousSchedule?.date?.includes("WORKING_edit")) {
       //delete old entries
-      await deleteOldSchedule(previousScheduleId)
+      await deleteOldSchedule(previousSchedule.id)
 
     }
     updateSchedule(scheduleId, selectedDate?.format('MM/DD/YYYY'));
@@ -112,6 +112,7 @@ const Editor = (props: EditorProps) => {
   }
 
   async function deleteOldSchedule(id: string) {
+    //TODO: waterfall deletion
     return await API.graphql({
       query: deleteScheduleMutation,
       variables: {
