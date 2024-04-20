@@ -22,32 +22,37 @@ const ActivitySelect = (props: ActivityProps) => {
 	const API = generateClient({ authMode: 'apiKey' });
 
 	useEffect(() => {
-		setSelectedActivities(activities.filter((activity) => scheduleEntry.activities?.items?.find((item) => item.activity.id == activity.id)));
-		selectedActivities.forEach((activity) => {
+		const selected = activities.filter((activity) => scheduleEntry.activities?.items?.find((item) => item.activity.id == activity.id));
+		selected.forEach((activity) => {
 			const existingEntry = scheduleEntry.activities?.items?.find((item) => item.activity.id == activity.id)
+			console.log(existingEntry)
 			if (existingEntry?.label) {
 				activity.label = existingEntry.label;
 			}
 		})
+		setSelectedActivities(selected);
+
 	}, [scheduleEntry])
 	const [hasChange, setHasChange] = useState(false);
 
 	async function handleSubmit() {
-		let scheduleEntryForSubmit = scheduleEntry;
-		if (!scheduleEntry?.id) {
-			const result = await createScheduleEntry(period, division);
-			scheduleEntryForSubmit = result.data.createScheduleEntry;
-		}
-		else if (scheduleEntry.activities?.items?.length) {
-			await Promise.all(scheduleEntry.activities.items.map((existingRelation) => {
-				return deleteRelation(existingRelation.id);
+		if (hasChange) {
+			let scheduleEntryForSubmit = scheduleEntry;
+			if (!scheduleEntry?.id) {
+				const result = await createScheduleEntry(period, division);
+				scheduleEntryForSubmit = result.data.createScheduleEntry;
+			}
+			else if (scheduleEntry.activities?.items?.length) {
+				await Promise.all(scheduleEntry.activities.items.map((existingRelation) => {
+					return deleteRelation(existingRelation.id);
+				}))
+			}
+			await Promise.all(selectedActivities.map((a) => {
+				return createScheduleEntryActivityRelation(scheduleEntryForSubmit.id, a.id, a.label);
 			}))
+			onChange();
 		}
-		await Promise.all(selectedActivities.map((a) => {
-			return createScheduleEntryActivityRelation(scheduleEntryForSubmit.id, a.id, a.label);
-		}))
 		setIsOpen(false);
-		onChange();
 	}
 
 	async function deleteRelation(id) {
@@ -75,10 +80,11 @@ const ActivitySelect = (props: ActivityProps) => {
 						<div className="font-bold mb-2">
 							Editing Period {scheduleEntry.period + 1} for division {scheduleEntry.division}
 						</div>
-						{activities.map((activity) => {
+						{activities.map((activity, i) => {
 							return (
 								<div key={activity.id} className="mb-4 flex items-center justify-between">
 									<Checkbox
+										key={i}
 										checked={selectedActivities.includes(activity)}
 										disabled={facilityUsage[activity.facility.name] + activity.usage > 100 && !selectedActivities.includes(activity)}
 										onChange={(event) => {
@@ -93,7 +99,13 @@ const ActivitySelect = (props: ActivityProps) => {
 										}}
 									/>
 									{activity.name}
-									<TextField onChange={(event) => activity.label = event.target.value} placeholder="Note" value={activity.label} disabled={!selectedActivities.includes(activity)}></TextField>
+									<TextField key={i} onChange={(event) => {
+										const updatedActivities = [...selectedActivities];
+										const activityIndex = updatedActivities.indexOf(activity)
+										updatedActivities[activityIndex].label = event.target.value;
+										setSelectedActivities(updatedActivities);
+										setHasChange(true);
+									}} placeholder="Note" value={selectedActivities.find((a) => a.id == activity.id)?.label} disabled={!selectedActivities.includes(activity)}></TextField>
 								</div>
 							)
 						})}

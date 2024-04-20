@@ -189,7 +189,7 @@ const Editor = (props: EditorProps) => {
                 {row.map((entry: ScheduleEntry, j) => {
                   return (
                     <TableCell key={`${i}-${j}`}>
-                      <ActivitySelect period={i} division={j} activities={activities} scheduleEntry={entry} onChange={props.afterActivitySubmit} facilityUsage={facilityUsageForPeriod(i)} createScheduleEntry={createScheduleEntry} />
+                      <ActivitySelect key={`${i}-${j}`} period={i} division={j} activities={activities} scheduleEntry={entry} onChange={props.afterActivitySubmit} facilityUsage={facilityUsageForPeriod(i)} createScheduleEntry={createScheduleEntry} />
                     </TableCell>
                   )
                 })}
