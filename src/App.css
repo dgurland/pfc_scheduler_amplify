@@ -41,3 +41,9 @@
     transform: rotate(360deg);
   }
 }
+
+.amplify-table__td.hidden {
+  @media(max-width: 768px) {
+    display: none;
+  }
+}
