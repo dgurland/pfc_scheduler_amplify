@@ -47,7 +47,7 @@ const App = ({ signOut }) => {
   async function getExistingSchedules() {
     const apiData = await API.graphql({ query: listSchedules });
     const schedulesFromAPI = apiData.data.listSchedules.items;
-    const sortedSchedules = schedulesFromAPI.filter((a) => dayjs().isSame(dayjs(a.date, "MM/DD/YYYY"), "day") || dayjs().isBefore(dayjs(a.date, "MM/DD/YYYY"))).sort((a, b) => dayjs(a, "MM/DD/YYYY").isAfter(dayjs(b, "MM/DD/YYYY") ? 1 : -1));
+    const sortedSchedules = schedulesFromAPI.filter((a) => dayjs().isSame(dayjs(a.date, "MM/DD/YYYY"), "day") || dayjs().isBefore(dayjs(a.date, "MM/DD/YYYY"))).sort((a, b) => dayjs(a.date, "MM/DD/YYYY").isAfter(dayjs(b.date, "MM/DD/YYYY")) ? 1 : -1);
     setAllSchedules(sortedSchedules);
   }
 
@@ -69,7 +69,7 @@ const App = ({ signOut }) => {
     {
       path: "/upcoming",
       name: "Upcoming Schedule",
-      element: <ScheduleDisplay key={allSchedules.length > 1 ? allSchedules[1]?.id : "schedule1"} schedule={allSchedules.length > 1 ? allSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : 0}/>,
+      element: <ScheduleDisplay key={allSchedules.length > 1 ? allSchedules[1]?.id : "schedule1"} schedule={allSchedules.length > 1 ? allSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : 0} />,
       enabled: allSchedules.length > 1,
       order: 1
     },
@@ -90,7 +90,7 @@ const App = ({ signOut }) => {
     {
       path: "/",
       name: "Home",
-      element: <ScheduleDisplay key={allSchedules[0] ? allSchedules[0].id : "schedule0"} schedule={allSchedules[0]}  defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined}/>,
+      element: <ScheduleDisplay key={allSchedules[0] ? allSchedules[0].id : "schedule0"} schedule={allSchedules[0]} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined} />,
       enabled: true,
       order: 0
     },
@@ -125,14 +125,14 @@ const App = ({ signOut }) => {
             <Drawer open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
               <div className="flex flex-col gap-4 p-4">
                 {routes.sort((a, b) => a.order - b.order).map((route) => {
-                if (route.enabled) {
-                  return (
-                    <a href={route.path} className="text-black hover:underline">
-                      {route.name}
-                    </a>
-                  )
-                }
-              })}
+                  if (route.enabled) {
+                    return (
+                      <a href={route.path} className="text-black hover:underline">
+                        {route.name}
+                      </a>
+                    )
+                  }
+                })}
               </div>
             </Drawer>
           </AppBar>
