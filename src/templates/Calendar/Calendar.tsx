@@ -38,8 +38,8 @@ const Calendar = (props: { isAdmin?: boolean }) => {
     const eventsFromAPI = apiData.data.listCalendarEvents.items;
     setEvents(eventsFromAPI?.map((event) => {
       let classes = [bgColorsByEventType[event.category ?? 0]]
-      if (dayjs(event.updatedAt).diff(dayjs(), 'day') <= 1) {
-        classes = classes.concat(['border-2', 'border-red'])
+      if (dayjs().diff(dayjs(event.updatedAt), 'day') <= 1) {
+        classes = classes.concat(['border-[3px]', 'border-red'])
       }
       return ({
         start: new Date(event.date),
@@ -134,7 +134,7 @@ const Calendar = (props: { isAdmin?: boolean }) => {
 
   function EventWrapper({ event }) {
     return (
-      <span key={event.id} className={classNames("flex w-full text-white rounded p-1 text-sm border", event.classNames)} onClick={() => onSelectEvent(event)}>
+      <span key={event.id} className={classNames("my-[1px] flex w-full text-white rounded p-1 text-xs border", event.classNames)} onClick={() => onSelectEvent(event)}>
         <strong>{event.title}</strong>
       </span>
     )
@@ -189,7 +189,7 @@ const Calendar = (props: { isAdmin?: boolean }) => {
           )
         })}
         <div className="flex gap-1">
-          <span className={classNames(keyClasses, "border border-2 border-red")} />
+          <span className={classNames(keyClasses, "border border-4 border-red")} />
           <span>indicates a recent change to this event</span>
         </div>
       </div>
