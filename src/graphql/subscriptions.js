@@ -52,6 +52,10 @@ export const onCreateActivity = /* GraphQL */ `
         nextToken
         __typename
       }
+      employees {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -76,6 +80,10 @@ export const onUpdateActivity = /* GraphQL */ `
         nextToken
         __typename
       }
+      employees {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -97,6 +105,10 @@ export const onDeleteActivity = /* GraphQL */ `
         __typename
       }
       scheduleEntries {
+        nextToken
+        __typename
+      }
+      employees {
         nextToken
         __typename
       }
@@ -375,6 +387,153 @@ export const onDeleteCalendarEvent = /* GraphQL */ `
       category
       createdAt
       updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateEmployee = /* GraphQL */ `
+  subscription OnCreateEmployee($filter: ModelSubscriptionEmployeeFilterInput) {
+    onCreateEmployee(filter: $filter) {
+      id
+      name
+      division
+      activities {
+        nextToken
+        __typename
+      }
+      daysOff
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateEmployee = /* GraphQL */ `
+  subscription OnUpdateEmployee($filter: ModelSubscriptionEmployeeFilterInput) {
+    onUpdateEmployee(filter: $filter) {
+      id
+      name
+      division
+      activities {
+        nextToken
+        __typename
+      }
+      daysOff
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteEmployee = /* GraphQL */ `
+  subscription OnDeleteEmployee($filter: ModelSubscriptionEmployeeFilterInput) {
+    onDeleteEmployee(filter: $filter) {
+      id
+      name
+      division
+      activities {
+        nextToken
+        __typename
+      }
+      daysOff
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateActivityEmployee = /* GraphQL */ `
+  subscription OnCreateActivityEmployee(
+    $filter: ModelSubscriptionActivityEmployeeFilterInput
+  ) {
+    onCreateActivityEmployee(filter: $filter) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      employee {
+        id
+        name
+        division
+        daysOff
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      activityEmployeesId
+      employeeActivitiesId
+      __typename
+    }
+  }
+`;
+export const onUpdateActivityEmployee = /* GraphQL */ `
+  subscription OnUpdateActivityEmployee(
+    $filter: ModelSubscriptionActivityEmployeeFilterInput
+  ) {
+    onUpdateActivityEmployee(filter: $filter) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      employee {
+        id
+        name
+        division
+        daysOff
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      activityEmployeesId
+      employeeActivitiesId
+      __typename
+    }
+  }
+`;
+export const onDeleteActivityEmployee = /* GraphQL */ `
+  subscription OnDeleteActivityEmployee(
+    $filter: ModelSubscriptionActivityEmployeeFilterInput
+  ) {
+    onDeleteActivityEmployee(filter: $filter) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      employee {
+        id
+        name
+        division
+        daysOff
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      activityEmployeesId
+      employeeActivitiesId
       __typename
     }
   }

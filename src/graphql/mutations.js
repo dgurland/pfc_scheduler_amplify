@@ -64,6 +64,10 @@ export const createActivity = /* GraphQL */ `
         nextToken
         __typename
       }
+      employees {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -91,6 +95,10 @@ export const updateActivity = /* GraphQL */ `
         nextToken
         __typename
       }
+      employees {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -115,6 +123,10 @@ export const deleteActivity = /* GraphQL */ `
         __typename
       }
       scheduleEntries {
+        nextToken
+        __typename
+      }
+      employees {
         nextToken
         __typename
       }
@@ -411,6 +423,165 @@ export const deleteCalendarEvent = /* GraphQL */ `
       category
       createdAt
       updatedAt
+      __typename
+    }
+  }
+`;
+export const createEmployee = /* GraphQL */ `
+  mutation CreateEmployee(
+    $input: CreateEmployeeInput!
+    $condition: ModelEmployeeConditionInput
+  ) {
+    createEmployee(input: $input, condition: $condition) {
+      id
+      name
+      division
+      activities {
+        nextToken
+        __typename
+      }
+      daysOff
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateEmployee = /* GraphQL */ `
+  mutation UpdateEmployee(
+    $input: UpdateEmployeeInput!
+    $condition: ModelEmployeeConditionInput
+  ) {
+    updateEmployee(input: $input, condition: $condition) {
+      id
+      name
+      division
+      activities {
+        nextToken
+        __typename
+      }
+      daysOff
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteEmployee = /* GraphQL */ `
+  mutation DeleteEmployee(
+    $input: DeleteEmployeeInput!
+    $condition: ModelEmployeeConditionInput
+  ) {
+    deleteEmployee(input: $input, condition: $condition) {
+      id
+      name
+      division
+      activities {
+        nextToken
+        __typename
+      }
+      daysOff
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const createActivityEmployee = /* GraphQL */ `
+  mutation CreateActivityEmployee(
+    $input: CreateActivityEmployeeInput!
+    $condition: ModelActivityEmployeeConditionInput
+  ) {
+    createActivityEmployee(input: $input, condition: $condition) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      employee {
+        id
+        name
+        division
+        daysOff
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      activityEmployeesId
+      employeeActivitiesId
+      __typename
+    }
+  }
+`;
+export const updateActivityEmployee = /* GraphQL */ `
+  mutation UpdateActivityEmployee(
+    $input: UpdateActivityEmployeeInput!
+    $condition: ModelActivityEmployeeConditionInput
+  ) {
+    updateActivityEmployee(input: $input, condition: $condition) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      employee {
+        id
+        name
+        division
+        daysOff
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      activityEmployeesId
+      employeeActivitiesId
+      __typename
+    }
+  }
+`;
+export const deleteActivityEmployee = /* GraphQL */ `
+  mutation DeleteActivityEmployee(
+    $input: DeleteActivityEmployeeInput!
+    $condition: ModelActivityEmployeeConditionInput
+  ) {
+    deleteActivityEmployee(input: $input, condition: $condition) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      employee {
+        id
+        name
+        division
+        daysOff
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      activityEmployeesId
+      employeeActivitiesId
       __typename
     }
   }

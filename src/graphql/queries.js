@@ -49,6 +49,10 @@ export const getActivity = /* GraphQL */ `
         nextToken
         __typename
       }
+      employees {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -241,6 +245,98 @@ export const listCalendarEvents = /* GraphQL */ `
         category
         createdAt
         updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getEmployee = /* GraphQL */ `
+  query GetEmployee($id: ID!) {
+    getEmployee(id: $id) {
+      id
+      name
+      division
+      activities {
+        nextToken
+        __typename
+      }
+      daysOff
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listEmployees = /* GraphQL */ `
+  query ListEmployees(
+    $filter: ModelEmployeeFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listEmployees(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        division
+        daysOff
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getActivityEmployee = /* GraphQL */ `
+  query GetActivityEmployee($id: ID!) {
+    getActivityEmployee(id: $id) {
+      id
+      activity {
+        id
+        name
+        usage
+        facilityId
+        createdAt
+        updatedAt
+        __typename
+      }
+      employee {
+        id
+        name
+        division
+        daysOff
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      activityEmployeesId
+      employeeActivitiesId
+      __typename
+    }
+  }
+`;
+export const listActivityEmployees = /* GraphQL */ `
+  query ListActivityEmployees(
+    $filter: ModelActivityEmployeeFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listActivityEmployees(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        createdAt
+        updatedAt
+        activityEmployeesId
+        employeeActivitiesId
         __typename
       }
       nextToken

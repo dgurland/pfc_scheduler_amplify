@@ -10,6 +10,7 @@ type Activity @model @auth(rules: [{allow: public}]) {
   facilityId: ID
   facility: Facility @hasOne(fields: ["facilityId"])
   scheduleEntries: [ActivityScheduleEntry] @hasMany
+  employees: [ActivityEmployee] @hasMany
 }
 
 type Schedule @model @auth(rules: [{allow: public}]) {
@@ -39,4 +40,18 @@ type CalendarEvent @model @auth(rules: [{allow: public}]) {
   date: String!
   title: String!
   category: Int
+}
+
+type Employee @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  division: Int
+  activities: [ActivityEmployee] @hasMany
+  daysOff: [String]
+}
+
+type ActivityEmployee @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  activity: Activity @belongsTo
+  employee: Employee @belongsTo
 }
