@@ -64,10 +64,14 @@ export type Schedule = {
     periods: number;
 }
 
-export type Event = {
+export type EventType = {
     name: string;
     id: string;
     date: string;
     updatedAt: string;
     category: number;
+    title?: string,
+    dates?: string[],
+    start?: Date,
+    end?: Date
 }

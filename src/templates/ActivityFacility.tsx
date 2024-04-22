@@ -38,7 +38,6 @@ const ActivityFacility = () => {
   useEffect(() => {
     fetchFacilities();
     fetchActivities();
-    console.log(activities);
   }, []);
 
   async function fetchFacilities() {
@@ -107,7 +106,6 @@ const ActivityFacility = () => {
     if (window.confirm(confirmMessage)) {
       await Promise.all(
         scheduleEntries?.items?.map((entry) => {
-          console.log(entry.id)
           return API.graphql({ query: deleteActivityScheduleEntry, variables: { input: { id: entry.id } } })
         })
       )

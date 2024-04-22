@@ -19,8 +19,9 @@ import { listSchedules } from "./graphql/custom-queries";
 import { generateClient } from "aws-amplify/api";
 import dayjs from "dayjs";
 import MenuIcon from '@mui/icons-material/Menu';
-import Calendar from "./templates/Calendar/Calendar";
 import GoogleForms from "./templates/GoogleForms";
+import EmployeeManagerLayout from "./templates/EmployeeManager/EmployeeManagerLayout";
+import EventsCalendar from "./templates/Events/EventsCalendar";
 
 const App = ({ signOut }) => {
 
@@ -76,7 +77,7 @@ const App = ({ signOut }) => {
     {
       path: "/calendar",
       name: "Summer Calendar",
-      element: <Calendar key={userAttributes['custom:authLevel']} isAdmin={(userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN} />,
+      element: <EventsCalendar key={userAttributes['custom:authLevel']} isAdmin={(userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN} />,
       enabled: true,
       order: 4
     },
@@ -85,6 +86,13 @@ const App = ({ signOut }) => {
       element: <GoogleForms />,
       name: "Maintenace Request",
       enabled: true,
+      order: 6
+    },
+    {
+      path: "/staff",
+      name: "Manage Staff",
+      element: <EmployeeManagerLayout key={userAttributes['custom:division']} divisions={userAttributes['custom:division'] ? [parseInt(userAttributes['custom:division']) as DIVISIONS] : []}/>, //TODO: set divisions to all for admin
+      enabled: (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN || (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.DIVISION_LEADER,
       order: 5
     },
     {
