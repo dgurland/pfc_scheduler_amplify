@@ -15,7 +15,7 @@ const EmployeeUpdateForm = (props: EmployeeUpdateFormProps) => {
   const { eventData, setSelectedEvent, mode, employees} = props;
 
   const disableDate = (date: Dayjs) => {
-    return employees.find((e) => e.id === eventData?.employeeId)?.daysOff.includes(date.format("MM/DD/YYYY"));
+    return employees.find((e) => e.id === eventData?.employeeId)?.daysOff?.includes(date.format("MM/DD/YYYY"));
   }
 
   return (

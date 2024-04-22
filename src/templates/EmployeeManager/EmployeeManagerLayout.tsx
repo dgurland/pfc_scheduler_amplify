@@ -40,7 +40,7 @@ const EmployeeManagerLayout = (props: EmployeeManagerProps) => {
 
   async function onFormSubmit(event: EventType, eventMode: CREATE_UPDATE) {
     const employee = employees.find((e) => e.id == event.employeeId)
-    let newDateList = employee.daysOff;
+    let newDateList = employee.daysOff ?? [];
     const dateString = dayjs(event.date).format("MM/DD/YYYY");
     newDateList.push(dateString)
     if (eventMode == CREATE_UPDATE.EDIT) {

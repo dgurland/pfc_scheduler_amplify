@@ -91,7 +91,7 @@ const App = ({ signOut }) => {
     {
       path: "/staff",
       name: "Manage Staff",
-      element: <EmployeeManagerLayout key={userAttributes['custom:division']} divisions={userAttributes['custom:division'] ? [parseInt(userAttributes['custom:division']) as DIVISIONS] : []}/>, //TODO: set divisions to all for admin
+      element: <EmployeeManagerLayout key={userAttributes['custom:division']} divisions={userAttributes['custom:division'] ? [parseInt(userAttributes['custom:division']) as DIVISIONS] : Object.keys(DIVISIONS).filter((key) => !isNaN(Number(key)))}/>,
       enabled: (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN || (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.DIVISION_LEADER,
       order: 5
     },
