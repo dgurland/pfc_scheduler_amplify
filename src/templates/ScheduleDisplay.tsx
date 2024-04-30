@@ -17,31 +17,46 @@ import { MenuItem, Select } from "@mui/material";
 import dayjs from "dayjs";
 import classNames from "classnames";
 import { Switch } from '@mui/material';
+import { listActivitiesWithFacilityData } from "../graphql/custom-queries";
 
 type ScheduleDisplayProps = {
   schedule?: Schedule;
   defaultDivision?: DIVISIONS;
+  defaultActivities: string[];
 }
 
 const ScheduleDisplay = (props: ScheduleDisplayProps) => {
-  const { defaultDivision } = props;
+  const { defaultDivision, defaultActivities, schedule } = props;
   const [scheduleEntriesByPeriod, setScheduleEntries] = useState<ScheduleEntry[][]>([]);
-  const numPeriods = 6;//TODO
-  const userActivities = ["2914ee2b-8592-4b27-ad03-3d2d179c8222", "87a27617-4b65-4a6f-9895-7ee7909163ed", "7f80bc20-2da6-431f-b565-84378e9f9136"]//TODO
-  const [filterFormat, setFilterFormat] = useState(false);
+  const numPeriods = schedule?.periods;
+  const [filterFormat, setFilterFormat] = useState(defaultActivities?.length > 0 ?? false);
   const API = generateClient({ authMode: 'apiKey' });
   const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS | undefined>(defaultDivision ?? DIVISIONS.JRG);
+  const [selectedActivities, setSelectedActivities] = useState<string[]>(defaultActivities);
+  const [allActivities, setAllActivities] = useState<Activity[]>([]);
+
   useEffect(() => {
     setScheduleEntries(organizeTableEntries(props.schedule?.entries?.items));
   }, [props.schedule]);
 
   useEffect(() => {
-    console.log('hey')
-  }, [filterFormat])
+    fetchActivities();
+  }, [])
 
   useEffect(() => {
     setDivisionForMobile(defaultDivision != undefined ? defaultDivision : DIVISIONS.JRG);
   }, [defaultDivision]);
+
+  useEffect(() => {
+    setSelectedActivities(defaultActivities);
+    setFilterFormat(defaultActivities?.length > 0 ?? false)
+  }, [defaultActivities]);
+
+  async function fetchActivities() {
+    const apiData = await API.graphql({ query: listActivitiesWithFacilityData });
+    const activitiesFromAPI = apiData.data.listActivities.items;
+    setAllActivities(activitiesFromAPI);
+  }
 
   const tableRows = (): ScheduleEntry[][] => {
     let rows: ScheduleEntry[][] = []
@@ -67,8 +82,12 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
         const divisionsToInclude = []
         dataForPeriod.forEach((dataEntry) => {
           dataEntry?.activities?.items?.forEach((item) => {
-            if (item.activity?.id && userActivities.includes(item.activity.id)) {
-              divisionsToInclude.push(`${DIVISIONS[dataEntry.division]}`)
+            if (item.activity?.id && selectedActivities?.includes(item.activity.id)) {
+              let divisionString = DIVISIONS[dataEntry.division]
+              if (selectedActivities.length > 1) {
+                divisionString = divisionString + ` (${allActivities.find((activity) => activity.id === item.activity?.id)?.name})`
+              }
+              divisionsToInclude.push(divisionString)
             }
           })
         })
@@ -90,12 +109,12 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
   }
 
   return (
-    <div>
+    <div className="flex flex-col">
       {!filterFormat && (<div className="sm:hidden w-full my-2 px-4 container">
-        <Select value={divisionForMobile}
+        <Select value={divisionForMobile} key={"divisions"}
           onChange={(event) => setDivisionForMobile(event?.target.value as DIVISIONS)}
           classes={{
-            root: "w-full"
+            root: "w-full h-[50%]"
           }}
         >
           {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
@@ -104,6 +123,23 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
             )
           })}
           <MenuItem value={undefined} key={"all"}>Show all</MenuItem>
+        </Select>
+      </div>)}
+      {filterFormat && (<div className="w-full sm:w-auto sm:order-2 my-2 px-4 container">
+        <Select multiple value={selectedActivities} key={"activities"}
+          onChange={(event) => {
+            console.log(event.target.value)
+            setSelectedActivities(event.target.value)
+          }}
+          classes={{
+            root: "w-full"
+          }}
+        >
+          {allActivities.map((activity, i) => {
+            return (
+              <MenuItem value={activity.id} key={`activity-${i}`}>{activity.name}</MenuItem>
+            )
+          })}
         </Select>
       </div>)}
       <div className="m-4 font-bold text-xl">

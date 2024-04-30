@@ -95,7 +95,7 @@ const Editor = (props: EditorProps) => {
       await deleteOldSchedule(previousSchedule.id)
 
     }
-    updateSchedule(scheduleId, selectedDate?.format('MM/DD/YYYY'));
+    await updateSchedule(scheduleId, selectedDate?.format('MM/DD/YYYY'));
     resetEditor();
   }
 

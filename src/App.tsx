@@ -70,7 +70,7 @@ const App = ({ signOut }) => {
     {
       path: "/upcoming",
       name: "Upcoming Schedule",
-      element: <ScheduleDisplay key={allSchedules.length > 1 ? allSchedules[1]?.id : "schedule1"} schedule={allSchedules.length > 1 ? allSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : 0} />,
+      element: <ScheduleDisplay key={allSchedules.length > 1 ? allSchedules[1]?.id : "schedule1"} schedule={allSchedules.length > 1 ? allSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : 0} defaultActivities={userAttributes['custom:activity'] ? userAttributes['custom:activity'].split(',') : []} />,
       enabled: allSchedules.length > 1,
       order: 1
     },
@@ -98,7 +98,7 @@ const App = ({ signOut }) => {
     {
       path: "/",
       name: "Home",
-      element: <ScheduleDisplay key={allSchedules[0] ? allSchedules[0].id : "schedule0"} schedule={allSchedules[0]} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined} />,
+      element: <ScheduleDisplay key={allSchedules[0] ? allSchedules[0].id : "schedule0"} schedule={allSchedules[0]} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined} defaultActivities={userAttributes['custom:activity'] ? userAttributes['custom:activity'].split(',') : []} />,
       enabled: true,
       order: 0
     },
