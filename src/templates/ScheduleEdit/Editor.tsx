@@ -26,7 +26,7 @@ import {
 import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule, CREATE_UPDATE } from "../../types";
 import ActivitySelect from "../../common/components/ActivitySelect";
 import dayjs, { Dayjs } from "dayjs";
-import { Button } from "@mui/material";
+import { Button, TextField, Tooltip } from "@mui/material";
 
 type EditorProps = {
   scheduleEntriesByPeriod: ScheduleEntry[][];
@@ -46,6 +46,7 @@ const Editor = (props: EditorProps) => {
   const API = generateClient({ authMode: 'apiKey' });
   const [tableData, setTableData] = useState<ScheduleEntry[][]>()
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(date ? dayjs(date, "MM/DD/YYYY") : null);
+  const [templateName, setTemplateName] = useState<string>("");
 
   useEffect(() => {
     setTableData(tableRows());
@@ -95,7 +96,7 @@ const Editor = (props: EditorProps) => {
       await deleteOldSchedule(previousSchedule.id)
 
     }
-    await updateSchedule(scheduleId, selectedDate?.format('MM/DD/YYYY'));
+    await updateSchedule(scheduleId, templateName ?? selectedDate?.format('MM/DD/YYYY'));
     resetEditor();
   }
 
@@ -205,6 +206,9 @@ const Editor = (props: EditorProps) => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker label="Date" name="date" value={selectedDate} onChange={(d) => setSelectedDate(d)} disabled={editingType == CREATE_UPDATE.EDIT} disablePast shouldDisableDate={disableDate} />
           </LocalizationProvider>
+          OR
+          <TextField value={templateName} onChange={(event) => setTemplateName(event.target.value)} placeholder="Save as template">
+          </TextField>
           <Button variant="contained" onClick={() => onSubmit()} disabled={!selectedDate}>
             Save
           </Button>
