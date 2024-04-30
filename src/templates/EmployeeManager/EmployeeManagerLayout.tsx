@@ -66,6 +66,7 @@ const EmployeeManagerLayout = (props: EmployeeManagerProps) => {
 
   return (
     <div className="p-4 h-[90vh]">
+      <div className="font-bold w-full text-center text-xl">Days Off</div>
       <Calendar
         events={events}
         enableEdit={true}
