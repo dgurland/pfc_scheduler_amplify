@@ -75,3 +75,5 @@ export type EventType = {
     start?: Date,
     end?: Date
 }
+
+export const MAX_DAYS_FOR_EXPORT = 7;

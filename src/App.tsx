@@ -22,11 +22,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import GoogleForms from "./templates/GoogleForms";
 import EmployeeManagerLayout from "./templates/EmployeeManager/EmployeeManagerLayout";
 import EventsCalendar from "./templates/Events/EventsCalendar";
+import Exporter from "./templates/Exporter";
 
 const App = ({ signOut }) => {
 
   const [userAttributes, setUserAttributes] = useState<FetchUserAttributesOutput>({});
   const [allSchedules, setAllSchedules] = useState<Schedule[]>([]);
+  const [allFilteredSchedules, setAllFilteredSchedules] = useState<Schedule[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const API = generateClient({ authMode: 'apiKey' });
 
@@ -49,7 +51,8 @@ const App = ({ signOut }) => {
     const apiData = await API.graphql({ query: listSchedules });
     const schedulesFromAPI = apiData.data.listSchedules.items;
     const sortedSchedules = schedulesFromAPI.filter((a) => dayjs().isSame(dayjs(a.date, "MM/DD/YYYY"), "day") || dayjs().isBefore(dayjs(a.date, "MM/DD/YYYY"))).sort((a, b) => dayjs(a.date, "MM/DD/YYYY").isAfter(dayjs(b.date, "MM/DD/YYYY")) ? 1 : -1);
-    setAllSchedules(sortedSchedules);
+    setAllFilteredSchedules(sortedSchedules);
+    setAllSchedules(schedulesFromAPI);
   }
 
   const routes = [
@@ -70,8 +73,8 @@ const App = ({ signOut }) => {
     {
       path: "/upcoming",
       name: "Upcoming Schedule",
-      element: <ScheduleDisplay key={allSchedules.length > 1 ? allSchedules[1]?.id : "schedule1"} schedule={allSchedules.length > 1 ? allSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : 0} defaultActivities={userAttributes['custom:activity'] ? userAttributes['custom:activity'].split(',') : []} />,
-      enabled: allSchedules.length > 1,
+      element: <ScheduleDisplay key={allFilteredSchedules.length > 1 ? allFilteredSchedules[1]?.id : "schedule1"} schedule={allFilteredSchedules.length > 1 ? allFilteredSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : 0} defaultActivities={userAttributes['custom:activity'] ? userAttributes['custom:activity'].split(',') : []} />,
+      enabled: allFilteredSchedules.length > 1,
       order: 1
     },
     {
@@ -96,9 +99,16 @@ const App = ({ signOut }) => {
       order: 5
     },
     {
+      path: "/export",
+      name: "Print Schedules",
+      element:  <Exporter schedules={allSchedules}/>,
+      enabled: (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN,
+      order: 7
+    },
+    {
       path: "/",
       name: "Home",
-      element: <ScheduleDisplay key={allSchedules[0] ? allSchedules[0].id : "schedule0"} schedule={allSchedules[0]} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined} defaultActivities={userAttributes['custom:activity'] ? userAttributes['custom:activity'].split(',') : []} />,
+      element: <ScheduleDisplay key={allFilteredSchedules[0] ? allFilteredSchedules[0].id : "schedule0"} schedule={allFilteredSchedules[0]} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined} defaultActivities={userAttributes['custom:activity'] ? userAttributes['custom:activity'].split(',') : []} />,
       enabled: true,
       order: 0
     },
