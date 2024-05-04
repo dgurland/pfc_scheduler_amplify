@@ -26,7 +26,8 @@ import {
 import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule, CREATE_UPDATE } from "../../types";
 import ActivitySelect from "../../common/components/ActivitySelect";
 import dayjs, { Dayjs } from "dayjs";
-import { Button, TextField, Tooltip } from "@mui/material";
+import { Button, MenuItem, Select, TextField, Tooltip } from "@mui/material";
+import classNames from "classnames";
 
 type EditorProps = {
   scheduleEntriesByPeriod: ScheduleEntry[][];
@@ -47,7 +48,9 @@ const Editor = (props: EditorProps) => {
   const [tableData, setTableData] = useState<ScheduleEntry[][]>()
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(date ? dayjs(date, "MM/DD/YYYY") : null);
   const [templateName, setTemplateName] = useState<string>("");
+  const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS>(DIVISIONS.JRG)
   useEffect(() => {
+    console.log(scheduleEntriesByPeriod, scheduleId, date, schedules)
     setTableData(tableRows());
   }, [scheduleEntriesByPeriod])
 
@@ -148,37 +151,32 @@ const Editor = (props: EditorProps) => {
   }
 
   return (
-    <View>
+    <div className="p-2">
       <Button onClick={() => resetEditor(false)}><ArrowBackIosIcon />Go Back</Button>
+      <div className="md:hidden">
+      <Select value={divisionForMobile} key={"divisions"}
+          onChange={(event) => setDivisionForMobile(event?.target.value as DIVISIONS)}
+          classes={{
+            root: "w-full h-[50%]"
+          }}
+        >
+          {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
+            return (
+              <MenuItem value={DIVISIONS[divisionKey]} key={divisionKey}>{divisionKey}</MenuItem>
+            )
+          })}
+        </Select>
+      </div>
       <Table>
         <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>
-              Jr Girls
-            </TableCell>
-            <TableCell>
-              Int Girls
-            </TableCell>
-            <TableCell>
-              Sr Girls
-            </TableCell>
-            <TableCell>
-              HS Girls
-            </TableCell>
-            <TableCell>
-              Jr Boys
-            </TableCell>
-            <TableCell>
-              Int Boys
-            </TableCell>
-            <TableCell>
-              Sr Boys
-            </TableCell>
-            <TableCell>
-              HS Boys
-            </TableCell>
-          </TableRow>
+        <TableRow>
+              <TableCell />
+              {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
+                return (
+                  <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
+                )
+              })}
+            </TableRow>
         </TableHead>
         <TableBody>
           {tableData?.map((row: ScheduleEntry[], i) => {
@@ -189,7 +187,7 @@ const Editor = (props: EditorProps) => {
                 </TableCell>
                 {row.map((entry: ScheduleEntry, j) => {
                   return (
-                    <TableCell key={`${i}-${j}`}>
+                    <TableCell key={`${i}-${j}`} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== j })}>
                       <ActivitySelect key={`${i}-${j}`} period={i} division={j} activities={activities} scheduleEntry={entry} onChange={props.afterActivitySubmit} facilityUsage={facilityUsageForPeriod(i)} createScheduleEntry={createScheduleEntry} />
                     </TableCell>
                   )
@@ -201,7 +199,7 @@ const Editor = (props: EditorProps) => {
       </Table>
       <View as="form" margin="3rem 0">
         <Heading level={3}>Save Schedule</Heading>
-        <Flex direction="row" justifyContent="center">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker label="Date" name="date" value={selectedDate} onChange={(d) => setSelectedDate(d)} disabled={editingType == CREATE_UPDATE.EDIT} disablePast shouldDisableDate={disableDate} />
           </LocalizationProvider>
@@ -211,9 +209,9 @@ const Editor = (props: EditorProps) => {
           <Button variant="contained" onClick={() => onSubmit()} disabled={!selectedDate}>
             Save
           </Button>
-        </Flex>
+        </div>
       </View>
-    </View>
+    </div>
   )
 }
 

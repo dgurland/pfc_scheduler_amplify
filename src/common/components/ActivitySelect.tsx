@@ -76,7 +76,7 @@ const ActivitySelect = (props: ActivityProps) => {
 			{isOpen
 				?
 				<Modal open={isOpen}>
-					<div className="flex flex-col bg-white w-full sm:w-1/2 h-full rounded absolute top-0 left-[25%] p-4 overflow-scroll">
+					<div className="flex flex-col bg-white w-full sm:w-1/2 h-full rounded absolute top-0 sm:left-[25%] p-4 overflow-scroll">
 						<div className="font-bold mb-2">
 							Editing Period {scheduleEntry.period + 1} for Division {DIVISIONS[scheduleEntry.division]}
 						</div>
