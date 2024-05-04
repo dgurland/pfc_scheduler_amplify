@@ -47,7 +47,6 @@ const Editor = (props: EditorProps) => {
   const [tableData, setTableData] = useState<ScheduleEntry[][]>()
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(date ? dayjs(date, "MM/DD/YYYY") : null);
   const [templateName, setTemplateName] = useState<string>("");
-
   useEffect(() => {
     setTableData(tableRows());
   }, [scheduleEntriesByPeriod])
@@ -96,12 +95,12 @@ const Editor = (props: EditorProps) => {
       await deleteOldSchedule(previousSchedule.id)
 
     }
-    await updateSchedule(scheduleId, templateName ?? selectedDate?.format('MM/DD/YYYY'));
+    const x = await updateSchedule(scheduleId, templateName?.length > 0 ? templateName : selectedDate?.format('MM/DD/YYYY'));
     resetEditor();
   }
 
   async function updateSchedule(id, date) {
-    return await API.graphql({
+    return API.graphql({
       query: updateScheduleMutation,
       variables: {
         input: {
@@ -114,7 +113,7 @@ const Editor = (props: EditorProps) => {
 
   async function deleteOldSchedule(id: string) {
     //TODO: waterfall deletion
-    return await API.graphql({
+    return API.graphql({
       query: deleteScheduleMutation,
       variables: {
         input: {
