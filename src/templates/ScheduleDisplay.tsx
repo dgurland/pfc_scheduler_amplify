@@ -135,7 +135,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
           <MenuItem value={"available"} key={"all"}>Show available facilities</MenuItem>
         </Select>
       </div>)}
-      {filterFormat && (<div className="w-full sm:w-auto sm:order-2 my-2 px-4 container">
+      {filterFormat && (<div className="sm:hidden w-full sm:w-auto sm:order-2 my-2 px-4 container">
         <Select multiple value={selectedActivities} key={"activities"}
           onChange={(event) => {
             setSelectedActivities(event.target.value)
