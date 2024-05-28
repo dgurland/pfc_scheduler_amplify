@@ -28,6 +28,7 @@ import ActivitySelect from "../../common/components/ActivitySelect";
 import dayjs, { Dayjs } from "dayjs";
 import { Button, MenuItem, Select, TextField, Tooltip } from "@mui/material";
 import classNames from "classnames";
+import { facilityUsageForPeriod } from "../../common/helpers";
 
 type EditorProps = {
   scheduleEntriesByPeriod: ScheduleEntry[][];
@@ -53,28 +54,6 @@ const Editor = (props: EditorProps) => {
     console.log(scheduleEntriesByPeriod, scheduleId, date, schedules)
     setTableData(tableRows());
   }, [scheduleEntriesByPeriod])
-
-  function facilityUsageForPeriod(period) {
-    const entries: ScheduleEntry[] = scheduleEntriesByPeriod[period] ?? [];
-    const allActivitiesInUse = []
-    entries?.forEach((entry: ScheduleEntry) => {
-      entry.activities?.items?.forEach((activityRelation) => {
-        const activityObj = activities.find((activity: Activity) => activity.id === activityRelation.activity?.id)
-        if (activityObj && !allActivitiesInUse.includes(activityObj)) {
-          allActivitiesInUse.push(activityObj);
-        }
-      })
-    });
-    const facilitiesWithUsages = allActivitiesInUse.reduce((accumulator, currentValue: Activity) => {
-      if (accumulator[currentValue.facility.name]) {
-        accumulator[currentValue.facility.name] += currentValue.usage;
-      } else {
-        accumulator[currentValue.facility.name] = currentValue.usage;
-      }
-      return accumulator;
-    }, {})
-    return facilitiesWithUsages;
-  }
 
   async function createScheduleEntry(period, division) {
     const data = {
@@ -188,7 +167,7 @@ const Editor = (props: EditorProps) => {
                 {row.map((entry: ScheduleEntry, j) => {
                   return (
                     <TableCell key={`${i}-${j}`} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== j })}>
-                      <ActivitySelect key={`${i}-${j}`} period={i} division={j} activities={activities} scheduleEntry={entry} onChange={props.afterActivitySubmit} facilityUsage={facilityUsageForPeriod(i)} createScheduleEntry={createScheduleEntry} />
+                      <ActivitySelect key={`${i}-${j}`} period={i} division={j} activities={activities} scheduleEntry={entry} onChange={props.afterActivitySubmit} facilityUsage={facilityUsageForPeriod(i, scheduleEntriesByPeriod, activities)} createScheduleEntry={createScheduleEntry} />
                     </TableCell>
                   )
                 })}

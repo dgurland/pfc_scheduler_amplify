@@ -11,13 +11,14 @@ import {
   View,
   Heading
 } from "@aws-amplify/ui-react";
-import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule } from "../types";
-import { organizeTableEntries } from "../common/helpers";
+import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule, Facility } from "../types";
+import { facilityUsageForPeriod, organizeTableEntries } from "../common/helpers";
 import { MenuItem, Select } from "@mui/material";
 import dayjs from "dayjs";
 import classNames from "classnames";
 import { Switch } from '@mui/material';
 import { listActivitiesWithFacilityData } from "../graphql/custom-queries";
+import { listFacilities } from "../graphql/queries";
 
 type ScheduleDisplayProps = {
   schedule?: Schedule;
@@ -31,9 +32,10 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
   const numPeriods = schedule?.periods;
   const [filterFormat, setFilterFormat] = useState(defaultActivities?.length > 0 ?? false);
   const API = generateClient({ authMode: 'apiKey' });
-  const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS | undefined>(defaultDivision ?? DIVISIONS.JRG);
+  const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS | "available" | undefined>(defaultDivision ?? DIVISIONS.JRG);
   const [selectedActivities, setSelectedActivities] = useState<string[]>(defaultActivities);
   const [allActivities, setAllActivities] = useState<Activity[]>([]);
+  const [facilities, setFacilities] = useState<Facility[]>([]);
 
   useEffect(() => {
     setScheduleEntries(organizeTableEntries(props.schedule?.entries?.items));
@@ -41,6 +43,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
 
   useEffect(() => {
     fetchActivities();
+    fetchFacilities();
   }, [])
 
   useEffect(() => {
@@ -56,6 +59,12 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
     const apiData = await API.graphql({ query: listActivitiesWithFacilityData });
     const activitiesFromAPI = apiData.data.listActivities.items;
     setAllActivities(activitiesFromAPI);
+  }
+
+  async function fetchFacilities() {
+    const apiData = await API.graphql({ query: listFacilities });
+    const facilitiesFromAPI = apiData.data.listFacilities.items;
+    setFacilities(facilitiesFromAPI);
   }
 
   const tableRows = (): ScheduleEntry[][] => {
@@ -123,12 +132,12 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
             )
           })}
           <MenuItem value={undefined} key={"all"}>Show all</MenuItem>
+          <MenuItem value={"available"} key={"all"}>Show available facilities</MenuItem>
         </Select>
       </div>)}
       {filterFormat && (<div className="w-full sm:w-auto sm:order-2 my-2 px-4 container">
         <Select multiple value={selectedActivities} key={"activities"}
           onChange={(event) => {
-            console.log(event.target.value)
             setSelectedActivities(event.target.value)
           }}
           classes={{
@@ -142,6 +151,11 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
           })}
         </Select>
       </div>)}
+      <div className={classNames("p-2 sm:block sm:w-2/3 mx-auto sm:order-2", {"hidden": divisionForMobile != "available"})}>
+        <strong>*DISCLAIMER:</strong> Specialists are not expected to be available when they are not scheduled to work.
+        When using these available areas, the division leader is responsible for enforcing any safety rules and planning an activity for their group.
+        <strong> Please leave the area in the same condition that you find it in.</strong>
+      </div>
       <div className="m-4 font-bold text-xl">
         {dayjs().isSame(dayjs(props.schedule?.date, "MM/DD/YYYY"), 'day') ? <span>Today's Schedule</span> : <span>Schedule For {props.schedule?.date}</span>}
       </div>
@@ -150,15 +164,21 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
           <TableHead>
             <TableRow>
               <TableCell />
-              {!filterFormat ? Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
-                return (
-                  <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
-                )
-              }) : <TableCell />}
+              {!filterFormat ?
+                <>
+                  {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
+                    return (
+                      <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
+                    )
+                  }
+                  )}
+                  <TableCell key={"available"} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== "available" })}>Available Facilities*</TableCell>
+                </> : <TableCell />}
             </TableRow>
           </TableHead>
           <TableBody>
             {tableRows().map((row: ScheduleEntry[], i) => {
+              const usageForPeriod = Object.keys(facilityUsageForPeriod(i, scheduleEntriesByPeriod, allActivities));
               return (
                 <TableRow key={i}>
                   <TableCell key={`period-${i}`} className="!left-0 !sticky !bg-white">
@@ -167,26 +187,28 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
                   {row.map((entry: ScheduleEntry, j) => {
                     if (!filterFormat) {
                       return (
-                        <TableCell key={`${i}-${j}`} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== j })}>
+                        <TableCell key={`${i}-${j}-division`} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== j })}>
                           {entry.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`).join(', ')}
                         </TableCell>
                       )
                     } else {
                       return (
-                        <TableCell key={`${i}-${j}`} className={classNames("sm:flex")}>
+                        <TableCell key={`${i}-${j}-activity`} className={classNames("sm:flex")}>
                           {entry.activities.join(', ')}
                         </TableCell>
                       )
                     }
- 
                   })}
+                  <TableCell key={`${i}-available`} className={classNames("sm:flex", { "hidden": filterFormat || (divisionForMobile !== undefined && divisionForMobile !== "available") })}>
+                    {facilities.filter((facility) => !usageForPeriod.includes(facility.name)).map((facility) => facility.name).join(', ')}
+                  </TableCell>
                 </TableRow>
               )
             })}
           </TableBody>
         </Table>
       </div>
-      <div className="absolute bottom-0 right-2 z-[2]">
+      <div className="ml-auto p-2">
         by division<Switch checked={filterFormat} onChange={(event) => setFilterFormat(event.target.checked)}></Switch>by activity area
       </div>
     </div>

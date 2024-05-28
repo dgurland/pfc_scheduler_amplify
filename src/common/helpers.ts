@@ -19,4 +19,26 @@ const organizeTableEntries = (scheduleFromAPI: ScheduleEntry[]) => {
   return sortedSchedule;
 }
 
-export { organizeTableEntries }
+function facilityUsageForPeriod(period, data, activities) {
+  const entries: ScheduleEntry[] = data[period] ?? [];
+  const allActivitiesInUse = []
+  entries?.forEach((entry: ScheduleEntry) => {
+    entry.activities?.items?.forEach((activityRelation) => {
+      const activityObj = activities.find((activity: Activity) => activity.id === activityRelation.activity?.id)
+      if (activityObj && !allActivitiesInUse.includes(activityObj)) {
+        allActivitiesInUse.push(activityObj);
+      }
+    })
+  });
+  const facilitiesWithUsages = allActivitiesInUse.reduce((accumulator, currentValue: Activity) => {
+    if (accumulator[currentValue.facility.name]) {
+      accumulator[currentValue.facility.name] += currentValue.usage;
+    } else {
+      accumulator[currentValue.facility.name] = currentValue.usage;
+    }
+    return accumulator;
+  }, {})
+  return facilitiesWithUsages;
+}
+
+export { organizeTableEntries, facilityUsageForPeriod }
