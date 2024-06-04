@@ -18,6 +18,7 @@ type Schedule @model @auth(rules: [{allow: public}]) {
   date: String!
   periods: Int!
   entries: [ScheduleEntry] @hasMany
+  periodNames: [String]
 }
 
 type ScheduleEntry @model @auth(rules: [{allow: public}]) {

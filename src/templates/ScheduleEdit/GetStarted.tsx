@@ -70,9 +70,11 @@ const GetStarted = (props: GetStartedProps) => {
     };
     if (createEdit == CREATE_UPDATE.CREATE) {
       data.periods = period;
+      data.periodNames = Array.from({ length: period }, (value, index) =>  `Period ${index}`);
     } else {
       existingSchedule = schedules.find((schedule) => date ? schedule.date == date.format('MM/DD/YYYY') : schedule.id == templateId)
       data.periods = existingSchedule?.periods ?? 6;
+      data.periodNames = existingSchedule?.periodNames;
     }
     let schedule = await API.graphql({
       query: createScheduleMutation,

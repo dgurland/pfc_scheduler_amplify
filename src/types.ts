@@ -63,6 +63,7 @@ export type Schedule = {
     id: string;
     entries: ScheduleEntry[];
     periods: number;
+    periodNames: string[];
 }
 
 export type EventType = {

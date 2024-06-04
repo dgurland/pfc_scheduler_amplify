@@ -182,7 +182,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
               return (
                 <TableRow key={i}>
                   <TableCell key={`period-${i}`} className="!left-0 !sticky !bg-white">
-                    Period {i + 1}
+                    {schedule?.periodNames?.length > i && schedule.periodNames[i] ?  schedule.periodNames[i] : `Period ${i+1}`}
                   </TableCell>
                   {row.map((entry: ScheduleEntry, j) => {
                     if (!filterFormat) {

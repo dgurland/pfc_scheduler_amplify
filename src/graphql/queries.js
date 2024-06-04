@@ -90,6 +90,7 @@ export const getSchedule = /* GraphQL */ `
         nextToken
         __typename
       }
+      periodNames
       createdAt
       updatedAt
       __typename
@@ -107,6 +108,7 @@ export const listSchedules = /* GraphQL */ `
         id
         date
         periods
+        periodNames
         createdAt
         updatedAt
         __typename
@@ -126,6 +128,7 @@ export const getScheduleEntry = /* GraphQL */ `
         id
         date
         periods
+        periodNames
         createdAt
         updatedAt
         __typename

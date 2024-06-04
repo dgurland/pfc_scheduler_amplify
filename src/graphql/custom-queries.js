@@ -69,6 +69,7 @@ export const listSchedules = /* GraphQL */ `
         id
         date
         periods
+        periodNames
         createdAt
         updatedAt
         entries {

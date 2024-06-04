@@ -24,16 +24,19 @@ export declare type ValidationFunction<T> = (value: T, validationResponse: Valid
 export declare type ScheduleCreateFormInputValues = {
     date?: string;
     periods?: number;
+    periodNames?: string[];
 };
 export declare type ScheduleCreateFormValidationValues = {
     date?: ValidationFunction<string>;
     periods?: ValidationFunction<number>;
+    periodNames?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type ScheduleCreateFormOverridesProps = {
     ScheduleCreateFormGrid?: PrimitiveOverrideProps<GridProps>;
     date?: PrimitiveOverrideProps<TextFieldProps>;
     periods?: PrimitiveOverrideProps<TextFieldProps>;
+    periodNames?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type ScheduleCreateFormProps = React.PropsWithChildren<{
     overrides?: ScheduleCreateFormOverridesProps | undefined | null;

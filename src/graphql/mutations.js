@@ -149,6 +149,7 @@ export const createSchedule = /* GraphQL */ `
         nextToken
         __typename
       }
+      periodNames
       createdAt
       updatedAt
       __typename
@@ -168,6 +169,7 @@ export const updateSchedule = /* GraphQL */ `
         nextToken
         __typename
       }
+      periodNames
       createdAt
       updatedAt
       __typename
@@ -187,6 +189,7 @@ export const deleteSchedule = /* GraphQL */ `
         nextToken
         __typename
       }
+      periodNames
       createdAt
       updatedAt
       __typename
@@ -206,6 +209,7 @@ export const createScheduleEntry = /* GraphQL */ `
         id
         date
         periods
+        periodNames
         createdAt
         updatedAt
         __typename
@@ -234,6 +238,7 @@ export const updateScheduleEntry = /* GraphQL */ `
         id
         date
         periods
+        periodNames
         createdAt
         updatedAt
         __typename
@@ -262,6 +267,7 @@ export const deleteScheduleEntry = /* GraphQL */ `
         id
         date
         periods
+        periodNames
         createdAt
         updatedAt
         __typename
