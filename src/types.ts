@@ -20,7 +20,8 @@ export enum EVENT_CATEGORY {
     OTHER,
     PIZZA,
     BREAKFAST,
-    OVERNIGHT
+    OVERNIGHT,
+    OD
 }
 
 export enum USER_TYPE {

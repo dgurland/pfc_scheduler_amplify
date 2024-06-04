@@ -19,13 +19,15 @@ const EventsCalendar = (props: { isAdmin?: boolean }) => {
     'bg-black',
     'bg-green',
     'bg-blue-100',
-    'bg-gold-200'
+    'bg-gold-200',
+    'bg-gray'
   ]
   const eventTypes = [
     'Other',
     'Grove Pizza',
     'Grove Breakfast',
     'Overnights',
+    'OD'
   ]
   const keyClasses = "flex rounded-full w-[24px] h-[24px]"
 
