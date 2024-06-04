@@ -51,7 +51,6 @@ const Editor = (props: EditorProps) => {
   const [templateName, setTemplateName] = useState<string>("");
   const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS>(DIVISIONS.JRG)
   useEffect(() => {
-    console.log(scheduleEntriesByPeriod, scheduleId, date, schedules)
     setTableData(tableRows());
   }, [scheduleEntriesByPeriod])
 
@@ -74,7 +73,8 @@ const Editor = (props: EditorProps) => {
   async function onSubmit() {
     if ((editingType == CREATE_UPDATE.EDIT && previousSchedule?.id) || previousSchedule?.date?.includes("WORKING_edit")) {
       //delete old entries
-      await deleteOldSchedule(previousSchedule.id)
+      const x = await deleteOldSchedule(previousSchedule.id);
+      console.log(x);
 
     }
     const x = await updateSchedule(scheduleId, templateName?.length > 0 ? templateName : selectedDate?.format('MM/DD/YYYY'));

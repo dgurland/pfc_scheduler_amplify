@@ -30,36 +30,60 @@ const Exporter = (props: ExporterProps) => {
   const generateCSV = () => {
     const schedulesToExport = schedules
       .filter((schedule) => selectedSchedules.includes(schedule.id));
-    const rows = new Array(9).fill(new Array(schedulesToExport.length + 1).fill(''));
-    console.log(rows)
-    rows[0] = ([""].concat(schedulesToExport.map((schedule) => schedule.date)));
-    if (byActivity) {
-      schedulesToExport.forEach((schedule, i) => {
-        const entries = schedule.entries?.items;
-        entries.forEach((entry) => {
-          const filteredActivities = entry.activities?.items?.filter((e) => selectedActivities.includes(e.activity.id)).map((activity) => {
-            return (activity.activity.name)// + selectedActivities.length > 0 ? ` (${allActivities.find((activity) => activity.id === entry.activity?.id)?.name})` : '')
-          }).join(';');
-          rows[entry.period + 1][i + 1] = rows[entry.period + 1][i + 1] ? [rows[entry.period + 1][i + 1], filteredActivities].join(';') : filteredActivities;
-        })
-      })
-    } else {
-      schedulesToExport.forEach((schedule, i) => {
-        const entries = schedule.entries?.items?.sort((a, b) => a.period - b.period);
-        let periodIndex = 0;
-        for (let j = 1; j <= schedule.periods; j++) {
-          if (!rows[j]) {
-            rows[j] = [`Period ${j}`];
-          }
-          if (entries.length > j && entries[periodIndex].period !== j - 1) {
-            rows[j].push("")
-          } else if (entries.length > j) {
-            const entry = entries[j]
-            rows[j].push(entry.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`).join('\t'));
-            periodIndex++;
+    const rows = [];
+    if (schedulesToExport.length == 1) {
+      const schedule = schedulesToExport[0];
+      const entries = schedule.entries?.items;
+      rows[0] = ([""].concat(Object.keys(DIVISIONS).filter((key) => isNaN(Number(key)))));
+      for (let period = 0; period < schedule.periods; period++) {
+        const currentRow = [`Period ${period + 1}`];
+        for (let division = 0; division < Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).length; division++) {
+          const entryForDivisionForPeriod = entries.find((entry) => entry.period === period && entry.division == division);
+          if (entryForDivisionForPeriod) {
+            currentRow.push(entryForDivisionForPeriod.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`).join(';'));
+          } else {
+            currentRow.push("")
           }
         }
-      })
+        rows.push(currentRow);
+      }
+    } else {
+      rows[0] = ([""].concat(schedulesToExport.map((schedule) => schedule.date)));
+      if (byActivity) {
+        for (let i = 1; i < 9; i++) {
+          const currentRow = [`Period ${i}`];
+          schedulesToExport.forEach((currentSchedule) => {
+            const entries = currentSchedule.entries?.items;
+            const entriesForPeriod = entries.filter((entry) => entry.period === i - 1);
+            if (entriesForPeriod) {
+              let filteredActivities = [];
+              entriesForPeriod.forEach((entry) => {
+                filteredActivities = filteredActivities.concat((entry.activities?.items?.filter((e) => selectedActivities.includes(e.activity.id))).map((activity) => {
+                  return (DIVISIONS[entry.division])
+                }))
+              })
+              currentRow.push(filteredActivities.join(';'))
+            } else {
+              currentRow.push("")
+            }
+          })
+          rows.push(currentRow);
+        }
+      } else {
+        for (let i = 1; i < 9; i++) {
+          const currentRow = [`Period ${i}`];
+          schedulesToExport.forEach((currentSchedule) => {
+            const entries = currentSchedule.entries?.items;
+            const entryForPeriod = entries.find((entry) => entry.period === i - 1 && entry.division === division);
+            if (entryForPeriod) {
+              currentRow.push(entryForPeriod.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`).join(';'));
+            } else {
+              currentRow.push("")
+            }
+          })
+          rows.push(currentRow);
+        }
+      }
     }
 
     const csv = rows.map((row) => row.join(',')).join('\n');
@@ -72,8 +96,7 @@ const Exporter = (props: ExporterProps) => {
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(file);
     link.download = `${byActivity ? 'area' : DIVISIONS[division]}-schedules.csv`;
-    console.log(rows)
-    // link.click();
+    link.click();
   }
 
   return (
@@ -105,7 +128,7 @@ const Exporter = (props: ExporterProps) => {
               >
                 {allActivities.map((activity, i) => {
                   return (
-                    <MenuItem value={activity.id} key={`activity-${i}`}>{activity.name}</MenuItem>
+                    <MenuItem value={activity.id} key={`activity-${i}`}>{activity.name}<span className="text-xs ml-2">({activity.facility?.name})</span></MenuItem>
                   )
                 })}
               </Select>) : (<Select label="Division" value={division} key={"divisions"}
@@ -122,7 +145,7 @@ const Exporter = (props: ExporterProps) => {
               </Select>)}
           </div>
         )}
-        <Button variant="contained" onClick={() => generateCSV()}>Download</Button>
+        <Button variant="contained" onClick={() => generateCSV()} disabled={selectedSchedules.length == 0}>Download</Button>
       </div>
     </div>
   )
