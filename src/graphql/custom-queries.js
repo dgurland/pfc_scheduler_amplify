@@ -103,6 +103,7 @@ export const getSchedule = /* GraphQL */ `
       id
       date
       periods
+      periodNames
       entries {
         items {
           id

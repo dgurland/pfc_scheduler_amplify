@@ -29,6 +29,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { Button, MenuItem, Select, TextField, Tooltip } from "@mui/material";
 import classNames from "classnames";
 import { facilityUsageForPeriod } from "../../common/helpers";
+import PeriodInput from "./PeriodInput";
 
 type EditorProps = {
   scheduleEntriesByPeriod: ScheduleEntry[][];
@@ -41,15 +42,17 @@ type EditorProps = {
   schedules: Schedule[];
   previousSchedule?: Schedule;
   resetEditor: Function;
+  periodNames: string[]
 }
 
 const Editor = (props: EditorProps) => {
-  const { scheduleEntriesByPeriod, activities, numPeriods, scheduleId, date, editingType, schedules, previousSchedule, resetEditor } = props;
+  const { scheduleEntriesByPeriod, activities, numPeriods, scheduleId, date, editingType, schedules, previousSchedule, resetEditor, periodNames } = props;
   const API = generateClient({ authMode: 'apiKey' });
   const [tableData, setTableData] = useState<ScheduleEntry[][]>()
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(date ? dayjs(date, "MM/DD/YYYY") : null);
   const [templateName, setTemplateName] = useState<string>("");
   const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS>(DIVISIONS.JRG)
+  const [periodNamesList, setPeriodNamesList] = useState<string[]>(periodNames)
   useEffect(() => {
     setTableData(tableRows());
   }, [scheduleEntriesByPeriod])
@@ -87,7 +90,8 @@ const Editor = (props: EditorProps) => {
       variables: {
         input: {
           id: id,
-          date: date
+          date: date,
+          periodNames: periodNamesList
         },
       },
     });
@@ -162,7 +166,7 @@ const Editor = (props: EditorProps) => {
             return (
               <TableRow key={i}>
                 <TableCell key={`period-${i}`}>
-                  Period {i + 1}
+                  <PeriodInput index={i} value={periodNamesList} setValue={setPeriodNamesList} />
                 </TableCell>
                 {row.map((entry: ScheduleEntry, j) => {
                   return (

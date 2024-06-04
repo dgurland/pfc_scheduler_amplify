@@ -110,6 +110,7 @@ const ScheduleEditLayout = () => {
           scheduleEntriesByPeriod={scheduleEntriesByPeriod}
           activities={activities}
           numPeriods={schedule.periods}
+          periodNames={schedule.periodNames}
           afterActivitySubmit={afterActivitySubmit}
           scheduleId={schedule?.id}
           editingType={createEdit}
