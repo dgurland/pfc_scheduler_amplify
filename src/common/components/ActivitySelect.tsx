@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import "../../App.css";
 import { deleteActivityScheduleEntry, createActivityScheduleEntry as createActivityScheduleEntryMutation } from "../../graphql/mutations";
 import { generateClient } from "aws-amplify/api";
+import CloseIcon from '@mui/icons-material/Close';
 import classNames from "classnames";
 type ActivityProps = {
 	scheduleEntry: ScheduleEntry,
@@ -19,6 +20,7 @@ type ActivityProps = {
 const ActivitySelect = (props: ActivityProps) => {
 	const { scheduleEntry, activities, onChange, facilityUsage, createScheduleEntry, period, division } = props;
 	const [isOpen, setIsOpen] = useState(false);
+	const [filterValue, setFilterValue] = useState("");
 	const [selectedActivities, setSelectedActivities] = useState<Activity[]>([])
 	const API = generateClient({ authMode: 'apiKey' });
 
@@ -77,13 +79,19 @@ const ActivitySelect = (props: ActivityProps) => {
 				?
 				<Modal open={isOpen}>
 					<div className="flex flex-col bg-white w-full sm:w-1/2 h-full rounded absolute top-0 sm:left-[25%] p-4 overflow-scroll">
-						<div className="font-bold mb-2">
+						<div className="font-bold mb-2 flex flex-col lg:flex-row justify-between lg:items-center border-b border-gray pb-2 gap-4 lg:gap-2">
 							Editing Period {scheduleEntry.period + 1} for Division {DIVISIONS[scheduleEntry.division]}
+							<div className="lg:w-1/2 flex relative">
+								<TextField className="w-full" key="filter" placeholder="Search..." value={filterValue} size="small"
+									onChange={(event) => setFilterValue(event.target.value)} />
+								<button className="absolute right-4 top-2" onClick={() => setFilterValue("")}><CloseIcon /></button>
+							</div>
 						</div>
+
 						<div className="max-h-[90vh] overflow-auto">
 							{activities.map((activity, i) => {
 								return (
-									<div key={activity.id} className="mb-4 flex items-center justify-between">
+									<div key={activity.id} className={classNames("mb-4 flex items-center justify-between", { "hidden": !(activity.facility.name.toLowerCase().includes(filterValue.toLowerCase()) || activity.name.toLowerCase().includes(filterValue.toLowerCase())) })}>
 										<Checkbox
 											key={i}
 											checked={selectedActivities.includes(activity)}
