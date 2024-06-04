@@ -188,7 +188,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
                     if (!filterFormat) {
                       return (
                         <TableCell key={`${i}-${j}-division`} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== j })}>
-                          {entry.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`).join(', ')}
+                          {[...new Set(entry.activities?.items?.map((activity) => `${activity.activity.name}${activity.label ? " (" + activity.label + ")" : ''}`))].join(', ')}
                         </TableCell>
                       )
                     } else {
