@@ -13,7 +13,7 @@ import ActivityFacility from "./templates/ActivityFacility";
 import ScheduleEditLayout from "./templates/ScheduleEdit/ScheduleEditLayout";
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
 import { AppBar, Box, Button, Drawer, Toolbar } from "@mui/material";
-import ScheduleDisplay from "./templates/ScheduleDisplay";
+import ScheduleDisplay from "./templates/ScheduleDisplay/ScheduleDisplay";
 import { DIVISIONS, Schedule, USER_TYPE } from "./types";
 import { listSchedules } from "./graphql/custom-queries";
 import { generateClient } from "aws-amplify/api";

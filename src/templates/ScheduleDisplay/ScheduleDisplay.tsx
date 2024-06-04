@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from 'aws-amplify/api';
-import "../App.css";
+import "../../App.css";
 import {
   Table,
   TableRow,
@@ -11,14 +11,15 @@ import {
   View,
   Heading
 } from "@aws-amplify/ui-react";
-import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule, Facility } from "../types";
-import { facilityUsageForPeriod, organizeTableEntries } from "../common/helpers";
+import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule, Facility } from "../../types";
+import { facilityUsageForPeriod, organizeTableEntries } from "../../common/helpers";
 import { MenuItem, Select } from "@mui/material";
 import dayjs from "dayjs";
 import classNames from "classnames";
 import { Switch } from '@mui/material';
-import { listActivitiesWithFacilityData } from "../graphql/custom-queries";
-import { listFacilities } from "../graphql/queries";
+import { listActivitiesWithFacilityData } from "../../graphql/custom-queries";
+import { listFacilities } from "../../graphql/queries";
+import CollapsibleCell from "./CollapsibleCell";
 
 type ScheduleDisplayProps = {
   schedule?: Schedule;
@@ -179,6 +180,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
           <TableBody>
             {tableRows().map((row: ScheduleEntry[], i) => {
               const usageForPeriod = Object.keys(facilityUsageForPeriod(i, scheduleEntriesByPeriod, allActivities));
+              const availableFacilities = facilities.filter((facility) => !usageForPeriod.includes(facility.name)).map((facility) => facility.name).join(', ');
               return (
                 <TableRow key={i}>
                   <TableCell key={`period-${i}`} className="!left-0 !sticky !bg-white">
@@ -200,7 +202,7 @@ const ScheduleDisplay = (props: ScheduleDisplayProps) => {
                     }
                   })}
                   <TableCell key={`${i}-available`} className={classNames("sm:flex", { "hidden": filterFormat || (divisionForMobile !== undefined && divisionForMobile !== "available") })}>
-                    {facilities.filter((facility) => !usageForPeriod.includes(facility.name)).map((facility) => facility.name).join(', ')}
+                    <CollapsibleCell value={availableFacilities} />
                   </TableCell>
                 </TableRow>
               )
