@@ -6,6 +6,7 @@ import { deleteActivityScheduleEntry, createActivityScheduleEntry as createActiv
 import { generateClient } from "aws-amplify/api";
 import CloseIcon from '@mui/icons-material/Close';
 import classNames from "classnames";
+import { kidCountsByDivision } from "../helpers";
 type ActivityProps = {
 	scheduleEntries: ScheduleEntry[],
 	activities: Activity[],
@@ -23,6 +24,8 @@ const ActivitySelect = (props: ActivityProps) => {
 	const [filterValue, setFilterValue] = useState("");
 	const [selectedActivities, setSelectedActivities] = useState<Activity[]>([])
 	const API = generateClient({ authMode: 'apiKey' });
+	const [choicesKidCount, setChoicesKidCount] = useState(0);
+
 
 	useEffect(() => {
 		if (scheduleEntries.length == 1) {
@@ -39,9 +42,23 @@ const ActivitySelect = (props: ActivityProps) => {
 	}, [scheduleEntries])
 	const [hasChange, setHasChange] = useState(false);
 
+
+	useEffect(() => {
+		let newKidCount = 0;
+		selectedActivities.forEach((activity) => {
+			const count = parseInt(activity.label);
+			if (!isNaN(count)) {
+				newKidCount += count;
+			}
+		})
+		if (newKidCount != choicesKidCount) {
+			setChoicesKidCount(newKidCount);
+		}
+	}, [selectedActivities])
+
 	async function handleSubmit() {
 		if (hasChange) {
-			await Promise.all(scheduleEntries.map((scheduleEntry) => { return handleSubmitOneEntry(scheduleEntry)}))
+			await Promise.all(scheduleEntries.map((scheduleEntry) => { return handleSubmitOneEntry(scheduleEntry) }))
 			onChange();
 		}
 		setIsOpen(false);
@@ -90,10 +107,10 @@ const ActivitySelect = (props: ActivityProps) => {
 							{scheduleEntries.length == 1 ? (
 								`Editing Period ${scheduleEntries[0].period + 1} for Division ${DIVISIONS[scheduleEntries[0].division]}`)
 								: enableFacilityUsage ? (`Editing multiple items for period ${scheduleEntries[0].period + 1}`)
-								:
-								(
-									`Warning: you are editing ${scheduleEntries.length} items from different periods right now. Facility usage checks are disabled.`
-								)
+									:
+									(
+										`Warning: you are editing ${scheduleEntries.length} items from different periods right now. Facility usage checks are disabled.`
+									)
 							}
 							<div className="lg:w-1/2 flex relative">
 								<TextField className="w-full" key="filter" placeholder="Search..." value={filterValue} size="small"
@@ -121,7 +138,7 @@ const ActivitySelect = (props: ActivityProps) => {
 												}
 											}}
 										/>
-										<div className={classNames("flex flex-col flex-grow ml-4", { "text-gray": ((activity.usage * scheduleEntries.length) > 100 || facilityUsage[activity.facility.name] + (activity.usage * scheduleEntries.length) > 100) && !selectedActivities.includes(activity)})}>
+										<div className={classNames("flex flex-col flex-grow ml-4", { "text-gray": ((activity.usage * scheduleEntries.length) > 100 || facilityUsage[activity.facility.name] + (activity.usage * scheduleEntries.length) > 100) && !selectedActivities.includes(activity) })}>
 											{activity.name}
 											{activity.facility?.name && (
 												<span className="text-xs text-gray">{activity.facility.name}</span>
@@ -138,9 +155,14 @@ const ActivitySelect = (props: ActivityProps) => {
 								)
 							})}
 						</div>
-						<div className="mt-auto flex gap-4 justify-end">
-							<Button onClick={() => setIsOpen(false)} variant="outlined">Cancel</Button>
-							<Button variant="contained" onClick={() => handleSubmit()}>Submit</Button>
+						<div className="mt-auto flex gap-4 justify-between items-center">
+							{scheduleEntries.length == 1 && (
+								<span className="flex-grow w-full">Filled Choice Spots for {choicesKidCount} / {kidCountsByDivision(scheduleEntries[0].division)} Campers</span>
+							)}
+							<div className="mt-auto flex gap-4 justify-end w-full">
+								<Button onClick={() => setIsOpen(false)} variant="outlined">Cancel</Button>
+								<Button variant="contained" onClick={() => handleSubmit()}>Submit</Button>
+							</div>
 						</div>
 					</div>
 				</Modal>
