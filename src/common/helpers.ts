@@ -1,4 +1,4 @@
-import { ScheduleEntry } from "../types";
+import { DIVISIONS, ScheduleEntry } from "../types";
 
 const organizeTableEntries = (scheduleFromAPI: ScheduleEntry[]) => {
   if (!scheduleFromAPI) {
@@ -41,4 +41,25 @@ function facilityUsageForPeriod(period, data, activities) {
   return facilitiesWithUsages;
 }
 
-export { organizeTableEntries, facilityUsageForPeriod }
+const kidCountsByDivision = (division: DIVISIONS) => {
+  switch (division) {
+    case DIVISIONS.JRG:
+      return 48;
+    case DIVISIONS.ING:
+      return 44;
+    case DIVISIONS.SRG:
+      return 69;
+    case DIVISIONS.HSG:
+      return 53; //15 CAs
+    case DIVISIONS.JRB:
+      return 48;
+    case DIVISIONS.INB:
+      return 56;
+    case DIVISIONS.SRB:
+      return 41;
+    case DIVISIONS.HSB:
+      return 61; //16 CAs
+  }
+}
+
+export { organizeTableEntries, facilityUsageForPeriod, kidCountsByDivision }

@@ -29,7 +29,7 @@ import ActivitySelect from "../../common/components/ActivitySelect";
 import dayjs, { Dayjs } from "dayjs";
 import { Button, Checkbox, MenuItem, Select, TextField, Tooltip } from "@mui/material";
 import classNames from "classnames";
-import { facilityUsageForPeriod } from "../../common/helpers";
+import { facilityUsageForPeriod, kidCountsByDivision } from "../../common/helpers";
 import PeriodInput from "./PeriodInput";
 
 type EditorProps = {
@@ -175,7 +175,7 @@ const Editor = (props: EditorProps) => {
             <TableCell />
             {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
               return (
-                <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
+                <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey} ({kidCountsByDivision(DIVISIONS[divisionKey])})</TableCell>
               )
             })}
           </TableRow>
