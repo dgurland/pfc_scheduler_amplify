@@ -6,6 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import "../../App.css";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   Table,
   TableRow,
@@ -26,7 +27,7 @@ import {
 import { DIVISIONS, Facility as FacilityType, Activity, ScheduleEntry, Schedule, CREATE_UPDATE } from "../../types";
 import ActivitySelect from "../../common/components/ActivitySelect";
 import dayjs, { Dayjs } from "dayjs";
-import { Button, MenuItem, Select, TextField, Tooltip } from "@mui/material";
+import { Button, Checkbox, MenuItem, Select, TextField, Tooltip } from "@mui/material";
 import classNames from "classnames";
 import { facilityUsageForPeriod } from "../../common/helpers";
 import PeriodInput from "./PeriodInput";
@@ -52,7 +53,9 @@ const Editor = (props: EditorProps) => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(date ? dayjs(date, "MM/DD/YYYY") : null);
   const [templateName, setTemplateName] = useState<string>("");
   const [divisionForMobile, setDivisionForMobile] = useState<DIVISIONS>(DIVISIONS.JRG)
-  const [periodNamesList, setPeriodNamesList] = useState<string[]>(periodNames)
+  const [periodNamesList, setPeriodNamesList] = useState<string[]>(periodNames);
+  const [selectedCells, setSelectedCells] = useState<ScheduleEntry[]>([]);
+  const [activitySelectOpen, setActivitySelectOpen] = useState(false);
   useEffect(() => {
     setTableData(tableRows());
   }, [scheduleEntriesByPeriod])
@@ -68,6 +71,12 @@ const Editor = (props: EditorProps) => {
       variables: { input: data },
     });
   }
+
+  useEffect(() => {
+    if (!activitySelectOpen) {
+      setSelectedCells([]);
+    }
+  }, [activitySelectOpen])
 
   const disableDate = (date: Dayjs) => {
     return schedules.find((schedule => schedule.date == date.format('MM/DD/YYYY'))) != undefined
@@ -133,11 +142,21 @@ const Editor = (props: EditorProps) => {
     return rows;
   }
 
+  const multiplePeriodsEditing = () => {
+    const periodEditing = selectedCells.map((cell) => cell.period);
+    const deduped = [...new Set(periodEditing)]
+    return deduped.length > 1
+  }
+
   return (
     <div className="p-2">
+      <div className="flex justify-between flex-col lg:flex-row">
       <Button onClick={() => resetEditor(false)}><ArrowBackIosIcon />Go Back</Button>
+      <Button onClick={() => setActivitySelectOpen(true)} disabled={selectedCells.length == 0}><EditIcon />Edit {selectedCells.length == 1 ? "1 Item" : selectedCells.length > 1 ? `${selectedCells.length} Items` : ''}</Button>
+      </div>
+      <ActivitySelect activities={activities} scheduleEntries={selectedCells} onChange={props.afterActivitySubmit} facilityUsage={multiplePeriodsEditing() ? {} : facilityUsageForPeriod(selectedCells[0]?.period, scheduleEntriesByPeriod, activities)} createScheduleEntry={createScheduleEntry} isOpen={activitySelectOpen} setIsOpen={setActivitySelectOpen} enableFacilityUsage={!multiplePeriodsEditing()} />
       <div className="md:hidden">
-      <Select value={divisionForMobile} key={"divisions"}
+        <Select value={divisionForMobile} key={"divisions"}
           onChange={(event) => setDivisionForMobile(event?.target.value as DIVISIONS)}
           classes={{
             root: "w-full h-[50%]"
@@ -152,14 +171,14 @@ const Editor = (props: EditorProps) => {
       </div>
       <Table>
         <TableHead>
-        <TableRow>
-              <TableCell />
-              {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
-                return (
-                  <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
-                )
-              })}
-            </TableRow>
+          <TableRow>
+            <TableCell />
+            {Object.keys(DIVISIONS).filter((key) => isNaN(Number(key))).map((divisionKey) => {
+              return (
+                <TableCell key={divisionKey} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== DIVISIONS[divisionKey] })}>{divisionKey}</TableCell>
+              )
+            })}
+          </TableRow>
         </TableHead>
         <TableBody>
           {tableData?.map((row: ScheduleEntry[], i) => {
@@ -171,7 +190,18 @@ const Editor = (props: EditorProps) => {
                 {row.map((entry: ScheduleEntry, j) => {
                   return (
                     <TableCell key={`${i}-${j}`} className={classNames("sm:flex", { "hidden": divisionForMobile !== undefined && divisionForMobile !== j })}>
-                      <ActivitySelect key={`${i}-${j}`} period={i} division={j} activities={activities} scheduleEntry={entry} onChange={props.afterActivitySubmit} facilityUsage={facilityUsageForPeriod(i, scheduleEntriesByPeriod, activities)} createScheduleEntry={createScheduleEntry} />
+                      <span>{entry.activities?.items?.map((item) => `${item.activity.name}${item.label ? " (" + item.label + ")" : ''}`).join(', ')}</span>
+                      <Checkbox
+                        key={`cell-${i}-${j}`}
+                        checked={selectedCells.find((cell) => cell.period == entry.period && cell.division == entry.division) != undefined}
+                        onChange={(event) => {
+                          if (event.target.checked) {
+                            setSelectedCells(selectedCells.concat([entry]))
+                          } else {
+                            setSelectedCells(selectedCells.filter((e) => !(e.period == entry.period && e.division == entry.division)))
+                          }
+                        }}
+                      />
                     </TableCell>
                   )
                 })}
