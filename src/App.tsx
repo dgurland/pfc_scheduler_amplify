@@ -72,7 +72,7 @@ const App = ({ signOut }) => {
     },
     {
       path: "/upcoming",
-      name: "Upcoming Schedule",
+      name: "Tomorrow's Schedule",
       element: <ScheduleDisplay key={allFilteredSchedules.length > 1 ? allFilteredSchedules[1]?.id : "schedule1"} schedule={allFilteredSchedules.length > 1 ? allFilteredSchedules[1] : undefined} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : 0} defaultActivities={userAttributes['custom:activity'] ? userAttributes['custom:activity'].split(',') : []} />,
       enabled: allFilteredSchedules.length > 1,
       order: 1
@@ -91,13 +91,13 @@ const App = ({ signOut }) => {
       enabled: true,
       order: 6
     },
-    {
-      path: "/staff",
-      name: "Manage Staff",
-      element: <EmployeeManagerLayout key={userAttributes['custom:division']} divisions={userAttributes['custom:division'] ? [parseInt(userAttributes['custom:division']) as DIVISIONS] : Object.keys(DIVISIONS).filter((key) => !isNaN(Number(key)))}/>,
-      enabled: (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN || (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.DIVISION_LEADER,
-      order: 5
-    },
+    // {
+    //   path: "/staff",
+    //   name: "Manage Staff",
+    //   element: <EmployeeManagerLayout key={userAttributes['custom:division']} divisions={userAttributes['custom:division'] ? [parseInt(userAttributes['custom:division']) as DIVISIONS] : Object.keys(DIVISIONS).filter((key) => !isNaN(Number(key)))}/>,
+    //   enabled: (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.ADMIN || (userAttributes['custom:authLevel'] ?? '') == USER_TYPE.DIVISION_LEADER,
+    //   order: 5
+    // },
     {
       path: "/export",
       name: "Print Schedules",
@@ -107,7 +107,7 @@ const App = ({ signOut }) => {
     },
     {
       path: "/",
-      name: "Home",
+      name: "Today's Schedule",
       element: <ScheduleDisplay key={allFilteredSchedules[0] ? allFilteredSchedules[0].id : "schedule0"} schedule={allFilteredSchedules[0]} defaultDivision={userAttributes['custom:division'] ? parseInt(userAttributes['custom:division']) as DIVISIONS : undefined} defaultActivities={userAttributes['custom:activity'] ? userAttributes['custom:activity'].split(',') : []} />,
       enabled: true,
       order: 0

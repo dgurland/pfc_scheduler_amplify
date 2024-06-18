@@ -28,7 +28,7 @@ const ActivitySelect = (props: ActivityProps) => {
 
 
 	useEffect(() => {
-		if (scheduleEntries.length == 1) {
+		if (scheduleEntries.length == 1 && isOpen) {
 			const scheduleEntry = scheduleEntries[0];
 			const selected = activities.filter((activity) => scheduleEntry.activities?.items?.find((item) => item.activity.id == activity.id));
 			selected.forEach((activity) => {
@@ -126,7 +126,7 @@ const ActivitySelect = (props: ActivityProps) => {
 										<Checkbox
 											key={`checkbox-${activity.id}`}
 											checked={selectedActivities.includes(activity)}
-											disabled={((activity.usage * scheduleEntries.length) > 100 || facilityUsage[activity.facility.name] + (activity.usage * scheduleEntries.length) > 100) && !selectedActivities.includes(activity)}
+											disabled={enableFacilityUsage ? ((activity.usage * scheduleEntries.length) > 100 || facilityUsage[activity.facility.name] + (activity.usage * scheduleEntries.length) > 100) && !selectedActivities.includes(activity) : false}
 											onChange={(event) => {
 												setHasChange(true)
 												if (event.target.checked) {
@@ -138,7 +138,7 @@ const ActivitySelect = (props: ActivityProps) => {
 												}
 											}}
 										/>
-										<div className={classNames("flex flex-col flex-grow ml-4", { "text-gray": ((activity.usage * scheduleEntries.length) > 100 || facilityUsage[activity.facility.name] + (activity.usage * scheduleEntries.length) > 100) && !selectedActivities.includes(activity) })}>
+										<div className={classNames("flex flex-col flex-grow ml-4", { "text-gray": enableFacilityUsage ? ((activity.usage * scheduleEntries.length) > 100 || facilityUsage[activity.facility.name] + (activity.usage * scheduleEntries.length) > 100) && !selectedActivities.includes(activity) : false })}>
 											{activity.name}
 											{activity.facility?.name && (
 												<span className="text-xs text-gray">{activity.facility.name}</span>
@@ -160,7 +160,10 @@ const ActivitySelect = (props: ActivityProps) => {
 								<span className="flex-grow w-full">Filled Choice Spots for {choicesKidCount} / {kidCountsByDivision(scheduleEntries[0].division)} Campers</span>
 							)}
 							<div className="mt-auto flex gap-4 justify-end w-full">
-								<Button onClick={() => setIsOpen(false)} variant="outlined">Cancel</Button>
+								<Button onClick={() => {
+									setIsOpen(false);
+									setSelectedActivities([]);
+								}} variant="outlined">Cancel</Button>
 								<Button variant="contained" onClick={() => handleSubmit()}>Submit</Button>
 							</div>
 						</div>
